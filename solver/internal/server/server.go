@@ -9,6 +9,9 @@ import (
 
 	"github.com/ChicagoDave/cityplanner/pkg/analytics"
 	"github.com/ChicagoDave/cityplanner/pkg/cost"
+	"github.com/ChicagoDave/cityplanner/pkg/layout"
+	"github.com/ChicagoDave/cityplanner/pkg/routing"
+	"github.com/ChicagoDave/cityplanner/pkg/scene"
 	"github.com/ChicagoDave/cityplanner/pkg/spec"
 	"github.com/ChicagoDave/cityplanner/pkg/validation"
 )
@@ -23,6 +26,7 @@ type Server struct {
 	params     *analytics.ResolvedParameters
 	costReport *cost.Report
 	valReport  *validation.Report
+	sceneGraph *scene.Graph
 }
 
 // New creates a server for the given project directory.
@@ -70,12 +74,26 @@ func (s *Server) loadAndSolve() error {
 	params.PerCapitaCost = costReport.Summary.PerCapita
 	params.BreakEvenRent = costReport.Summary.BreakEvenMonthlyRent
 
+	// Phase 2: Spatial generation.
+	pods, adjacency, podReport := layout.LayoutPods(citySpec, params)
+	schemaReport.Merge(podReport)
+
+	buildings, paths, buildReport := layout.PlaceBuildings(citySpec, pods, adjacency, params)
+	schemaReport.Merge(buildReport)
+
+	segments, routeReport := routing.RouteInfrastructure(citySpec, pods, buildings)
+	schemaReport.Merge(routeReport)
+
+	greenZones := layout.CollectGreenZones(citySpec, pods)
+	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones)
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.citySpec = citySpec
 	s.params = params
 	s.costReport = costReport
 	s.valReport = schemaReport
+	s.sceneGraph = graph
 	return nil
 }
 
@@ -93,16 +111,14 @@ func (s *Server) handleIndex(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (s *Server) handleScene(w http.ResponseWriter, _ *http.Request) {
-	// Scene graph is Phase 2 — return empty for now
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]any{
-		"metadata": map[string]any{
-			"spec_version": "0.1.0",
-			"generated_at": "",
-		},
-		"entities": []any{},
-		"groups":   map[string]any{},
-	})
+	if s.sceneGraph == nil {
+		http.Error(w, `{"error":"no scene graph available"}`, http.StatusServiceUnavailable)
+		return
+	}
+	json.NewEncoder(w).Encode(s.sceneGraph)
 }
 
 func (s *Server) handleCost(w http.ResponseWriter, _ *http.Request) {
@@ -136,10 +152,11 @@ func (s *Server) handleSolve(w http.ResponseWriter, _ *http.Request) {
 	defer s.mu.RUnlock()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]any{
-		"status":     "ok",
-		"parameters": s.params,
-		"cost":       s.costReport,
-		"validation": s.valReport,
+		"status":      "ok",
+		"parameters":  s.params,
+		"cost":        s.costReport,
+		"validation":  s.valReport,
+		"scene_graph": s.sceneGraph,
 	})
 }
 

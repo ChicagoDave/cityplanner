@@ -7,6 +7,9 @@ import (
 
 	"github.com/ChicagoDave/cityplanner/pkg/analytics"
 	"github.com/ChicagoDave/cityplanner/pkg/cost"
+	"github.com/ChicagoDave/cityplanner/pkg/layout"
+	"github.com/ChicagoDave/cityplanner/pkg/routing"
+	"github.com/ChicagoDave/cityplanner/pkg/scene"
 	"github.com/ChicagoDave/cityplanner/pkg/spec"
 	"github.com/ChicagoDave/cityplanner/pkg/validation"
 )
@@ -84,11 +87,25 @@ func runSolve(projectPath string) error {
 	params.PerCapitaCost = costReport.Summary.PerCapita
 	params.BreakEvenRent = costReport.Summary.BreakEvenMonthlyRent
 
+	// Phase 2: Spatial generation.
+	pods, adjacency, podReport := layout.LayoutPods(citySpec, params)
+	analyticsReport.Merge(podReport)
+
+	buildings, paths, buildReport := layout.PlaceBuildings(citySpec, pods, adjacency, params)
+	analyticsReport.Merge(buildReport)
+
+	segments, routeReport := routing.RouteInfrastructure(citySpec, pods, buildings)
+	analyticsReport.Merge(routeReport)
+
+	greenZones := layout.CollectGreenZones(citySpec, pods)
+	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones)
+
 	output := map[string]any{
-		"phase":      1,
-		"parameters": params,
-		"cost":       costReport,
-		"validation": analyticsReport,
+		"phase":       2,
+		"parameters":  params,
+		"cost":        costReport,
+		"validation":  analyticsReport,
+		"scene_graph": graph,
 	}
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
