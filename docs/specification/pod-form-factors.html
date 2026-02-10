@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pod Form Factors — Top-Down Views</title>
+<style>
+  body {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    margin: 0;
+    padding: 40px;
+  }
+  h1 { color: #82b1ff; margin-bottom: 8px; }
+  h2 { color: #b0bec5; font-weight: 400; margin-top: 0; }
+  .ring-label { color: #ffcc80; font-size: 14px; font-weight: 600; }
+  .info { color: #90a4ae; font-size: 13px; margin-bottom: 30px; max-width: 800px; line-height: 1.6; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 40px;
+    max-width: 1400px;
+  }
+  .pod-card {
+    background: #16213e;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #2a3a5c;
+  }
+  .pod-card h3 {
+    margin: 0 0 4px 0;
+    color: #82b1ff;
+    font-size: 18px;
+  }
+  .pod-card .subtitle {
+    color: #78909c;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .pod-card svg {
+    display: block;
+    margin: 0 auto;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 40px 0 30px 0;
+    padding: 20px;
+    background: #16213e;
+    border-radius: 12px;
+    border: 1px solid #2a3a5c;
+    max-width: 900px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .legend-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .notes {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #2a3a5c;
+    font-size: 12px;
+    color: #78909c;
+    line-height: 1.5;
+  }
+  .scale-bar {
+    font-size: 11px;
+    fill: #607d8b;
+  }
+</style>
+</head>
+<body>
+
+<h1>Pod Form Factors</h1>
+<h2>Top-down neighborhood layouts by ring</h2>
+
+<div class="info">
+  Each pod houses ~1,600 people in ~750 units with a K-8 school, commercial, medical, dining, and other daily-life amenities.
+  The same program is expressed differently at each ring height. No streets — all ground space is pedestrian paths, gardens, and plazas.
+  Elevated bike paths (~5m) bridge over pods and are not shown in these ground-level plans.
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#5c8a4d"></div> Residential</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#c17d3e"></div> Commercial / Dining / Retail</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#4a7fb5"></div> School (K-8)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#8e6aad"></div> Medical / Childcare</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#b5534b"></div> Community (Library, Fitness, Arts)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#3a7a5c"></div> Park / Green Space</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#d4c876"></div> Plaza / Courtyard</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:none; border:2px dashed #607d8b"></div> Pod Boundary (soft)</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:none; border:none;">
+    <svg width="16" height="16"><line x1="0" y1="8" x2="16" y2="8" stroke="#90a4ae" stroke-width="2" stroke-dasharray="3,3"/></svg>
+  </div> Pedestrian Path</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:none; border:none;">
+    <svg width="16" height="16"><circle cx="8" cy="8" r="5" fill="none" stroke="#ffcc80" stroke-width="2"/></svg>
+  </div> Shuttle Station</div>
+</div>
+
+<div class="grid">
+
+<!-- RING 1: 2-story, 360m -->
+<div class="pod-card">
+  <h3>Ring 1 — 2-Story Campus</h3>
+  <div class="subtitle">~360m diameter &middot; 14 pods in ring &middot; Townhouses &amp; courtyards</div>
+  <svg viewBox="0 0 400 400" width="400" height="400">
+    <!-- Pod boundary -->
+    <ellipse cx="200" cy="200" rx="180" ry="175" fill="none" stroke="#607d8b" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.6"/>
+
+    <!-- Green space base -->
+    <ellipse cx="200" cy="200" rx="178" ry="173" fill="#2d4a2a" opacity="0.3"/>
+
+    <!-- Townhouse clusters - organic layout -->
+    <!-- Cluster NW -->
+    <rect x="60" y="55" width="65" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-15,92,64)"/>
+    <rect x="55" y="80" width="65" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-15,87,89)"/>
+    <rect x="65" y="105" width="55" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-10,92,114)"/>
+
+    <!-- Cluster NE -->
+    <rect x="260" y="60" width="70" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(10,295,69)"/>
+    <rect x="265" y="85" width="65" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(12,297,94)"/>
+    <rect x="255" y="110" width="60" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(5,285,119)"/>
+
+    <!-- Cluster W -->
+    <rect x="35" y="170" width="60" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-5,65,179)"/>
+    <rect x="40" y="195" width="55" height="18" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="35" y="220" width="60" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(5,65,229)"/>
+
+    <!-- Cluster E -->
+    <rect x="305" y="165" width="65" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(8,337,174)"/>
+    <rect x="310" y="190" width="55" height="18" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="305" y="215" width="60" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-5,335,224)"/>
+
+    <!-- Cluster SW -->
+    <rect x="70" y="280" width="65" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(12,102,289)"/>
+    <rect x="65" y="305" width="60" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(8,95,314)"/>
+    <rect x="75" y="330" width="50" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(15,100,339)"/>
+
+    <!-- Cluster SE -->
+    <rect x="265" y="275" width="65" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-10,297,284)"/>
+    <rect x="270" y="300" width="60" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-8,300,309)"/>
+    <rect x="260" y="325" width="55" height="18" rx="3" fill="#5c8a4d" opacity="0.85" transform="rotate(-12,287,334)"/>
+
+    <!-- School - central-ish -->
+    <rect x="140" y="135" width="55" height="40" rx="5" fill="#4a7fb5" opacity="0.85"/>
+    <text x="167" y="159" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">K-8</text>
+
+    <!-- Commercial cluster -->
+    <rect x="195" y="175" width="40" height="22" rx="3" fill="#c17d3e" opacity="0.85"/>
+    <rect x="240" y="170" width="35" height="25" rx="3" fill="#c17d3e" opacity="0.85"/>
+    <rect x="210" y="202" width="50" height="20" rx="3" fill="#c17d3e" opacity="0.85"/>
+
+    <!-- Medical / Childcare -->
+    <rect x="140" y="240" width="40" height="30" rx="4" fill="#8e6aad" opacity="0.85"/>
+    <text x="160" y="259" text-anchor="middle" font-size="8" fill="#fff">Med</text>
+    <rect x="190" y="245" width="35" height="25" rx="4" fill="#8e6aad" opacity="0.7"/>
+    <text x="207" y="261" text-anchor="middle" font-size="8" fill="#fff">CC</text>
+
+    <!-- Community - library, fitness -->
+    <rect x="235" y="245" width="45" height="30" rx="4" fill="#b5534b" opacity="0.85"/>
+    <text x="257" y="264" text-anchor="middle" font-size="8" fill="#fff">Library</text>
+    <rect x="145" y="185" width="40" height="28" rx="4" fill="#b5534b" opacity="0.7"/>
+    <text x="165" y="203" text-anchor="middle" font-size="8" fill="#fff">Fit</text>
+
+    <!-- Courtyards -->
+    <ellipse cx="100" cy="155" rx="22" ry="18" fill="#d4c876" opacity="0.25"/>
+    <ellipse cx="320" cy="145" rx="18" ry="15" fill="#d4c876" opacity="0.25"/>
+    <ellipse cx="180" cy="310" rx="25" ry="20" fill="#d4c876" opacity="0.25"/>
+
+    <!-- Pedestrian paths -->
+    <line x1="200" y1="30" x2="200" y2="370" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="30" y1="200" x2="370" y2="200" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="70" y1="70" x2="330" y2="330" stroke="#90a4ae" stroke-width="1" stroke-dasharray="4,4" opacity="0.35"/>
+    <line x1="330" y1="70" x2="70" y2="330" stroke="#90a4ae" stroke-width="1" stroke-dasharray="4,4" opacity="0.35"/>
+
+    <!-- Shuttle station -->
+    <circle cx="200" cy="200" r="8" fill="none" stroke="#ffcc80" stroke-width="2"/>
+    <circle cx="200" cy="200" r="3" fill="#ffcc80"/>
+
+    <!-- Scale bar -->
+    <line x1="20" y1="385" x2="120" y2="385" stroke="#607d8b" stroke-width="2"/>
+    <line x1="20" y1="381" x2="20" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <line x1="120" y1="381" x2="120" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <text x="70" y="398" text-anchor="middle" class="scale-bar">100m</text>
+  </svg>
+  <div class="notes">
+    Townhouse rows in organic clusters of 3-5 buildings. Large courtyards and gardens between clusters.
+    School near center. Commercial grouped but not dominant. Generous green space throughout.
+    Feels like a college campus or garden village.
+  </div>
+</div>
+
+<!-- RING 2: 4-story, 255m -->
+<div class="pod-card">
+  <h3>Ring 2 — 4-Story Garden Blocks</h3>
+  <div class="subtitle">~255m diameter &middot; 10 pods in ring &middot; Mid-rise blocks with gardens</div>
+  <svg viewBox="0 0 400 400" width="400" height="400">
+    <ellipse cx="200" cy="200" rx="162" ry="158" fill="none" stroke="#607d8b" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.6"/>
+    <ellipse cx="200" cy="200" rx="160" ry="156" fill="#2d4a2a" opacity="0.3"/>
+
+    <!-- Residential blocks - L and U shapes -->
+    <!-- Block NW - L shape -->
+    <rect x="75" y="75" width="60" height="28" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="75" y="75" width="28" height="60" rx="3" fill="#5c8a4d" opacity="0.85"/>
+
+    <!-- Block NE - U shape -->
+    <rect x="260" y="75" width="60" height="25" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="260" y="75" width="22" height="65" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="298" y="75" width="22" height="65" rx="3" fill="#5c8a4d" opacity="0.85"/>
+
+    <!-- Block W -->
+    <rect x="52" y="175" width="55" height="55" rx="4" fill="#5c8a4d" opacity="0.85"/>
+    <!-- Courtyard cutout effect -->
+    <rect x="62" y="185" width="35" height="35" rx="3" fill="#2d4a2a" opacity="0.6"/>
+
+    <!-- Block E -->
+    <rect x="295" y="170" width="55" height="60" rx="4" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="305" y="180" width="35" height="40" rx="3" fill="#2d4a2a" opacity="0.6"/>
+
+    <!-- Block SW -->
+    <rect x="80" y="280" width="65" height="25" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="80" y="305" width="28" height="45" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="120" y="295" width="25" height="40" rx="3" fill="#5c8a4d" opacity="0.85"/>
+
+    <!-- Block SE -->
+    <rect x="255" y="285" width="70" height="25" rx="3" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="255" y="285" width="25" height="60" rx="3" fill="#5c8a4d" opacity="0.85"/>
+
+    <!-- School -->
+    <rect x="155" y="90" width="55" height="45" rx="5" fill="#4a7fb5" opacity="0.85"/>
+    <text x="182" y="117" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">K-8</text>
+
+    <!-- Commercial strip -->
+    <rect x="155" y="190" width="90" height="22" rx="3" fill="#c17d3e" opacity="0.85"/>
+    <rect x="160" y="218" width="38" height="20" rx="3" fill="#c17d3e" opacity="0.75"/>
+    <rect x="205" y="218" width="38" height="20" rx="3" fill="#c17d3e" opacity="0.75"/>
+
+    <!-- Medical -->
+    <rect x="155" y="155" width="38" height="28" rx="4" fill="#8e6aad" opacity="0.85"/>
+    <text x="174" y="173" text-anchor="middle" font-size="8" fill="#fff">Med</text>
+
+    <!-- Community -->
+    <rect x="205" y="148" width="48" height="35" rx="4" fill="#b5534b" opacity="0.85"/>
+    <text x="229" y="169" text-anchor="middle" font-size="8" fill="#fff">Library</text>
+
+    <rect x="165" y="260" width="35" height="28" rx="4" fill="#b5534b" opacity="0.7"/>
+    <text x="182" y="278" text-anchor="middle" font-size="8" fill="#fff">Fit</text>
+
+    <rect x="210" y="255" width="30" height="30" rx="4" fill="#8e6aad" opacity="0.7"/>
+    <text x="225" y="274" text-anchor="middle" font-size="8" fill="#fff">CC</text>
+
+    <!-- Central plaza -->
+    <ellipse cx="200" cy="200" rx="12" ry="10" fill="#d4c876" opacity="0.35"/>
+
+    <!-- Paths -->
+    <line x1="200" y1="45" x2="200" y2="355" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="45" y1="200" x2="355" y2="200" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+    <path d="M 100,60 Q 200,200 300,340" stroke="#90a4ae" stroke-width="1" stroke-dasharray="4,4" opacity="0.35" fill="none"/>
+    <path d="M 300,60 Q 200,200 100,340" stroke="#90a4ae" stroke-width="1" stroke-dasharray="4,4" opacity="0.35" fill="none"/>
+
+    <!-- Shuttle station -->
+    <circle cx="200" cy="200" r="8" fill="none" stroke="#ffcc80" stroke-width="2"/>
+    <circle cx="200" cy="200" r="3" fill="#ffcc80"/>
+
+    <!-- Scale -->
+    <line x1="20" y1="385" x2="99" y2="385" stroke="#607d8b" stroke-width="2"/>
+    <line x1="20" y1="381" x2="20" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <line x1="99" y1="381" x2="99" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <text x="59" y="398" text-anchor="middle" class="scale-bar">50m</text>
+  </svg>
+  <div class="notes">
+    L-shaped and U-shaped blocks create sheltered courtyards. Denser than Ring 1 but still generous gardens.
+    Commercial forms a walkable strip through the center. Buildings frame outdoor rooms.
+    Feels like a European perimeter-block neighborhood.
+  </div>
+</div>
+
+<!-- RING 3: 8-story, 180m -->
+<div class="pod-card">
+  <h3>Ring 3 — 8-Story Urban Village</h3>
+  <div class="subtitle">~180m diameter &middot; 8 pods in ring &middot; Mixed-use mid-rise</div>
+  <svg viewBox="0 0 400 400" width="400" height="400">
+    <ellipse cx="200" cy="200" rx="145" ry="140" fill="none" stroke="#607d8b" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.6"/>
+    <ellipse cx="200" cy="200" rx="143" ry="138" fill="#2d4a2a" opacity="0.3"/>
+
+    <!-- Mixed-use buildings - larger footprints -->
+    <!-- NW building -->
+    <rect x="90" y="85" width="55" height="50" rx="4" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="97" y="92" width="41" height="36" rx="2" fill="#2d4a2a" opacity="0.4"/>
+
+    <!-- NE building -->
+    <rect x="255" y="90" width="50" height="55" rx="4" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="262" y="97" width="36" height="41" rx="2" fill="#2d4a2a" opacity="0.4"/>
+
+    <!-- W building - mixed use -->
+    <rect x="65" y="185" width="50" height="45" rx="4" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="65" y="218" width="50" height="12" rx="2" fill="#c17d3e" opacity="0.7"/>
+
+    <!-- E building - mixed use -->
+    <rect x="285" y="180" width="50" height="45" rx="4" fill="#5c8a4d" opacity="0.85"/>
+    <rect x="285" y="213" width="50" height="12" rx="2" fill="#c17d3e" opacity="0.7"/>
+
+    <!-- SW building -->
+    <rect x="95" y="275" width="55" height="45" rx="4" fill="#5c8a4d" opacity="0.85"/>
+
+    <!-- SE building -->
+    <rect x="250" y="270" width="55" height="50" rx="4" fill="#5c8a4d" opacity="0.85"/>
+
+    <!-- School with playground -->
+    <rect x="160" y="85" width="80" height="50" rx="5" fill="#4a7fb5" opacity="0.85"/>
+    <text x="200" y="114" text-anchor="middle" font-size="11" fill="#fff" font-weight="600">K-8</text>
+    <rect x="175" y="140" width="50" height="25" rx="8" fill="#3a7a5c" opacity="0.5"/>
+    <text x="200" y="156" text-anchor="middle" font-size="8" fill="#a5d6a7">yard</text>
+
+    <!-- Central plaza with commercial ring -->
+    <ellipse cx="200" cy="215" rx="35" ry="30" fill="#d4c876" opacity="0.3"/>
+    <rect x="155" y="180" width="35" height="22" rx="3" fill="#c17d3e" opacity="0.85"/>
+    <rect x="210" y="180" width="35" height="22" rx="3" fill="#c17d3e" opacity="0.85"/>
+    <rect x="170" y="235" width="28" height="20" rx="3" fill="#c17d3e" opacity="0.75"/>
+    <rect x="205" y="235" width="28" height="20" rx="3" fill="#c17d3e" opacity="0.75"/>
+
+    <!-- Medical + Community -->
+    <rect x="130" y="275" width="50" height="35" rx="4" fill="#8e6aad" opacity="0.85"/>
+    <text x="155" y="296" text-anchor="middle" font-size="9" fill="#fff">Medical</text>
+
+    <rect x="195" y="280" width="48" height="35" rx="4" fill="#b5534b" opacity="0.85"/>
+    <text x="219" y="301" text-anchor="middle" font-size="9" fill="#fff">Library</text>
+
+    <!-- Paths -->
+    <line x1="200" y1="60" x2="200" y2="340" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="60" y1="200" x2="340" y2="200" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+
+    <!-- Shuttle station -->
+    <circle cx="200" cy="215" r="8" fill="none" stroke="#ffcc80" stroke-width="2"/>
+    <circle cx="200" cy="215" r="3" fill="#ffcc80"/>
+
+    <!-- Scale -->
+    <line x1="20" y1="385" x2="99" y2="385" stroke="#607d8b" stroke-width="2"/>
+    <line x1="20" y1="381" x2="20" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <line x1="99" y1="381" x2="99" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <text x="59" y="398" text-anchor="middle" class="scale-bar">35m</text>
+  </svg>
+  <div class="notes">
+    Courtyard buildings with commercial ground floors facing the central plaza.
+    School has its own protected yard. Medical and community facilities anchor the south.
+    Feels like a dense European village square — everything within a 90-second walk.
+  </div>
+</div>
+
+<!-- RING 4: 16-story, 130m -->
+<div class="pod-card">
+  <h3>Ring 4 — 16-Story Tower Podiums</h3>
+  <div class="subtitle">~130m diameter &middot; 5 pods in ring &middot; Towers on shared base</div>
+  <svg viewBox="0 0 400 400" width="400" height="400">
+    <ellipse cx="200" cy="200" rx="130" ry="125" fill="none" stroke="#607d8b" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.6"/>
+    <ellipse cx="200" cy="200" rx="128" ry="123" fill="#2d4a2a" opacity="0.3"/>
+
+    <!-- Podium base -->
+    <rect x="100" y="100" width="200" height="200" rx="12" fill="#3d3d3d" opacity="0.3"/>
+
+    <!-- Towers on podium -->
+    <rect x="115" y="110" width="55" height="55" rx="6" fill="#5c8a4d" opacity="0.9"/>
+    <rect x="121" y="116" width="43" height="43" rx="3" fill="#4a7a3f" opacity="0.5"/>
+
+    <rect x="230" y="110" width="55" height="55" rx="6" fill="#5c8a4d" opacity="0.9"/>
+    <rect x="236" y="116" width="43" height="43" rx="3" fill="#4a7a3f" opacity="0.5"/>
+
+    <rect x="115" y="235" width="55" height="55" rx="6" fill="#5c8a4d" opacity="0.9"/>
+    <rect x="121" y="241" width="43" height="43" rx="3" fill="#4a7a3f" opacity="0.5"/>
+
+    <rect x="230" y="235" width="55" height="55" rx="6" fill="#5c8a4d" opacity="0.9"/>
+    <rect x="236" y="241" width="43" height="43" rx="3" fill="#4a7a3f" opacity="0.5"/>
+
+    <!-- Central tower - school + community -->
+    <rect x="172" y="168" width="56" height="64" rx="6" fill="#4a7fb5" opacity="0.85"/>
+    <text x="200" y="195" text-anchor="middle" font-size="9" fill="#fff" font-weight="600">K-8</text>
+    <text x="200" y="210" text-anchor="middle" font-size="7" fill="#ccc">+ Community</text>
+
+    <!-- Podium-level commercial (ground floor) -->
+    <rect x="100" y="170" width="14" height="60" rx="2" fill="#c17d3e" opacity="0.8"/>
+    <rect x="286" y="170" width="14" height="60" rx="2" fill="#c17d3e" opacity="0.8"/>
+    <rect x="170" y="100" width="60" height="12" rx="2" fill="#c17d3e" opacity="0.8"/>
+    <rect x="170" y="288" width="60" height="12" rx="2" fill="#c17d3e" opacity="0.8"/>
+
+    <!-- Medical in podium -->
+    <rect x="175" y="112" width="50" height="22" rx="3" fill="#8e6aad" opacity="0.8"/>
+    <text x="200" y="127" text-anchor="middle" font-size="8" fill="#fff">Med + CC</text>
+
+    <!-- Fitness in podium -->
+    <rect x="175" y="268" width="50" height="18" rx="3" fill="#b5534b" opacity="0.8"/>
+    <text x="200" y="280" text-anchor="middle" font-size="8" fill="#fff">Fitness</text>
+
+    <!-- Plaza between towers -->
+    <ellipse cx="200" cy="152" rx="20" ry="8" fill="#d4c876" opacity="0.3"/>
+    <ellipse cx="200" cy="248" rx="20" ry="8" fill="#d4c876" opacity="0.3"/>
+    <ellipse cx="160" cy="200" rx="8" ry="20" fill="#d4c876" opacity="0.3"/>
+    <ellipse cx="240" cy="200" rx="8" ry="20" fill="#d4c876" opacity="0.3"/>
+
+    <!-- Paths through -->
+    <line x1="200" y1="75" x2="200" y2="325" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="75" y1="200" x2="325" y2="200" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+
+    <!-- Shuttle station -->
+    <circle cx="200" cy="200" r="8" fill="none" stroke="#ffcc80" stroke-width="2"/>
+    <circle cx="200" cy="200" r="3" fill="#ffcc80"/>
+
+    <!-- Scale -->
+    <line x1="20" y1="385" x2="79" y2="385" stroke="#607d8b" stroke-width="2"/>
+    <line x1="20" y1="381" x2="20" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <line x1="79" y1="381" x2="79" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <text x="49" y="398" text-anchor="middle" class="scale-bar">20m</text>
+  </svg>
+  <div class="notes">
+    Four residential towers on a shared 2-3 story podium. School and community in the central tower.
+    Commercial wraps the podium edges. Plazas between towers catch light.
+    Podium roof is a shared garden/terrace. Feels like a modern Asian mixed-use development.
+  </div>
+</div>
+
+<!-- CENTER: 32-story, 90m -->
+<div class="pod-card">
+  <h3>Center — 32-Story Vertical Village</h3>
+  <div class="subtitle">~90m diameter &middot; 3 pods in ring &middot; Compact towers, dense plazas</div>
+  <svg viewBox="0 0 400 400" width="400" height="400">
+    <ellipse cx="200" cy="200" rx="115" ry="110" fill="none" stroke="#607d8b" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.6"/>
+    <ellipse cx="200" cy="200" rx="113" ry="108" fill="#2d4a2a" opacity="0.3"/>
+
+    <!-- Podium/base - entire pod is one connected structure -->
+    <path d="M 145,130 L 255,130 L 275,170 L 275,260 L 245,295 L 155,295 L 125,260 L 125,170 Z"
+          fill="#3d3d3d" opacity="0.35" rx="8"/>
+
+    <!-- Main residential tower -->
+    <rect x="165" y="140" width="70" height="70" rx="8" fill="#5c8a4d" opacity="0.9"/>
+    <rect x="175" y="150" width="50" height="50" rx="4" fill="#4a7a3f" opacity="0.5"/>
+    <text x="200" y="180" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Tower A</text>
+
+    <!-- Secondary tower -->
+    <rect x="135" y="225" width="55" height="55" rx="8" fill="#5c8a4d" opacity="0.9"/>
+    <rect x="143" y="233" width="39" height="39" rx="3" fill="#4a7a3f" opacity="0.5"/>
+    <text x="162" y="257" text-anchor="middle" font-size="9" fill="#fff">Tower B</text>
+
+    <!-- Third tower -->
+    <rect x="215" y="220" width="50" height="55" rx="8" fill="#5c8a4d" opacity="0.9"/>
+    <rect x="222" y="228" width="36" height="39" rx="3" fill="#4a7a3f" opacity="0.5"/>
+    <text x="240" y="252" text-anchor="middle" font-size="9" fill="#fff">Tower C</text>
+
+    <!-- School floors (in tower, not standalone) -->
+    <rect x="140" y="145" width="22" height="30" rx="3" fill="#4a7fb5" opacity="0.85"/>
+    <text x="151" y="164" text-anchor="middle" font-size="7" fill="#fff">K-8</text>
+
+    <!-- Commercial at base -->
+    <rect x="130" y="170" width="30" height="18" rx="2" fill="#c17d3e" opacity="0.85"/>
+    <rect x="240" y="165" width="30" height="18" rx="2" fill="#c17d3e" opacity="0.85"/>
+    <rect x="190" y="215" width="22" height="18" rx="2" fill="#c17d3e" opacity="0.8"/>
+
+    <!-- Medical -->
+    <rect x="250" y="140" width="24" height="24" rx="3" fill="#8e6aad" opacity="0.85"/>
+    <text x="262" y="156" text-anchor="middle" font-size="7" fill="#fff">Med</text>
+
+    <!-- Community -->
+    <rect x="195" y="280" width="45" height="16" rx="3" fill="#b5534b" opacity="0.8"/>
+    <text x="217" y="292" text-anchor="middle" font-size="7" fill="#fff">Community</text>
+
+    <!-- Sky plaza between towers -->
+    <ellipse cx="200" cy="235" rx="15" ry="12" fill="#d4c876" opacity="0.35"/>
+
+    <!-- Perimeter green -->
+    <ellipse cx="200" cy="120" rx="30" ry="10" fill="#3a7a5c" opacity="0.4"/>
+    <ellipse cx="125" cy="200" rx="10" ry="25" fill="#3a7a5c" opacity="0.3"/>
+    <ellipse cx="280" cy="210" rx="10" ry="25" fill="#3a7a5c" opacity="0.3"/>
+    <ellipse cx="200" cy="310" rx="30" ry="10" fill="#3a7a5c" opacity="0.3"/>
+
+    <!-- Paths -->
+    <line x1="200" y1="90" x2="200" y2="310" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+    <line x1="100" y1="200" x2="300" y2="200" stroke="#90a4ae" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.5"/>
+
+    <!-- Shuttle station -->
+    <circle cx="200" cy="200" r="8" fill="none" stroke="#ffcc80" stroke-width="2"/>
+    <circle cx="200" cy="200" r="3" fill="#ffcc80"/>
+
+    <!-- Scale -->
+    <line x1="20" y1="385" x2="64" y2="385" stroke="#607d8b" stroke-width="2"/>
+    <line x1="20" y1="381" x2="20" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <line x1="64" y1="381" x2="64" y2="389" stroke="#607d8b" stroke-width="1.5"/>
+    <text x="42" y="398" text-anchor="middle" class="scale-bar">10m</text>
+  </svg>
+  <div class="notes">
+    Two or three tall towers connected by a shared podium base containing school, commercial, and community.
+    Everything is vertical — school occupies dedicated floors, not a standalone building.
+    Medical, fitness, library are all tower floors. Rooftop gardens on each tower.
+    Feels like a single interconnected vertical campus. The pod IS the building.
+  </div>
+</div>
+
+</div>
+
+<!-- City overview -->
+<div class="pod-card" style="max-width: 900px; margin-top: 40px;">
+  <h3>City Overview — Concentric Rings</h3>
+  <div class="subtitle">All 40 pods from above, showing density gradient from edge to center</div>
+  <svg viewBox="0 0 800 800" width="800" height="800">
+    <!-- External band -->
+    <circle cx="400" cy="400" r="390" fill="none" stroke="#546e7a" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
+    <text x="400" y="30" text-anchor="middle" font-size="12" fill="#546e7a">External Band (solar, water treatment, connections)</text>
+
+    <!-- 50m buffer visualization - green between rings -->
+    <circle cx="400" cy="400" r="360" fill="#2d4a2a" opacity="0.15"/>
+
+    <!-- Ring boundaries -->
+    <circle cx="400" cy="400" r="360" fill="none" stroke="#455a64" stroke-width="0.5" opacity="0.5"/>
+    <circle cx="400" cy="400" r="270" fill="none" stroke="#455a64" stroke-width="0.5" opacity="0.5"/>
+    <circle cx="400" cy="400" r="185" fill="none" stroke="#455a64" stroke-width="0.5" opacity="0.5"/>
+    <circle cx="400" cy="400" r="115" fill="none" stroke="#455a64" stroke-width="0.5" opacity="0.5"/>
+    <circle cx="400" cy="400" r="55" fill="none" stroke="#455a64" stroke-width="0.5" opacity="0.5"/>
+
+    <!-- Ring labels -->
+    <text x="400" y="780" text-anchor="middle" font-size="11" fill="#78909c">Ring 1 — 2 stories (14 pods)</text>
+    <text x="400" y="670" text-anchor="middle" font-size="10" fill="#78909c">Ring 2 — 4 stories (10 pods)</text>
+    <text x="400" y="590" text-anchor="middle" font-size="10" fill="#78909c">Ring 3 — 8 stories (8 pods)</text>
+    <text x="400" y="520" text-anchor="middle" font-size="9" fill="#78909c">Ring 4 — 16 (5)</text>
+    <text x="400" y="410" text-anchor="middle" font-size="8" fill="#78909c">32</text>
+
+    <!-- Ring 1 pods (14) - large, spread out -->
+    <circle cx="400" cy="90" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="530" cy="110" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="640" cy="180" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="700" cy="295" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="700" cy="420" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="660" cy="540" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="570" cy="640" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="430" cy="700" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="290" cy="690" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="170" cy="620" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="110" cy="510" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="100" cy="380" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="130" cy="250" r="28" fill="#5c8a4d" opacity="0.5"/>
+    <circle cx="250" cy="130" r="28" fill="#5c8a4d" opacity="0.5"/>
+
+    <!-- Ring 2 pods (10) - medium -->
+    <circle cx="400" cy="175" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="510" cy="205" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="585" cy="310" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="575" cy="440" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="500" cy="555" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="370" cy="595" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="245" cy="545" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="195" cy="430" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="210" cy="305" r="22" fill="#5c8a4d" opacity="0.6"/>
+    <circle cx="290" cy="205" r="22" fill="#5c8a4d" opacity="0.6"/>
+
+    <!-- Ring 3 pods (8) - smaller -->
+    <circle cx="400" cy="245" r="17" fill="#5c8a4d" opacity="0.7"/>
+    <circle cx="490" cy="285" r="17" fill="#5c8a4d" opacity="0.7"/>
+    <circle cx="515" cy="390" r="17" fill="#5c8a4d" opacity="0.7"/>
+    <circle cx="470" cy="490" r="17" fill="#5c8a4d" opacity="0.7"/>
+    <circle cx="370" cy="520" r="17" fill="#5c8a4d" opacity="0.7"/>
+    <circle cx="280" cy="475" r="17" fill="#5c8a4d" opacity="0.7"/>
+    <circle cx="270" cy="365" r="17" fill="#5c8a4d" opacity="0.7"/>
+    <circle cx="315" cy="275" r="17" fill="#5c8a4d" opacity="0.7"/>
+
+    <!-- Ring 4 pods (5) - small, dense -->
+    <circle cx="400" cy="310" r="13" fill="#5c8a4d" opacity="0.8"/>
+    <circle cx="460" cy="360" r="13" fill="#5c8a4d" opacity="0.8"/>
+    <circle cx="440" cy="440" r="13" fill="#5c8a4d" opacity="0.8"/>
+    <circle cx="360" cy="445" r="13" fill="#5c8a4d" opacity="0.8"/>
+    <circle cx="340" cy="360" r="13" fill="#5c8a4d" opacity="0.8"/>
+
+    <!-- Center pods (3) - tiny, very dense -->
+    <circle cx="400" cy="380" r="9" fill="#5c8a4d" opacity="0.9"/>
+    <circle cx="385" cy="410" r="9" fill="#5c8a4d" opacity="0.9"/>
+    <circle cx="415" cy="410" r="9" fill="#5c8a4d" opacity="0.9"/>
+
+    <!-- Shuttle stations (one per pod, shown for center) -->
+    <circle cx="400" cy="380" r="4" fill="none" stroke="#ffcc80" stroke-width="1.5"/>
+    <circle cx="385" cy="410" r="4" fill="none" stroke="#ffcc80" stroke-width="1.5"/>
+    <circle cx="415" cy="410" r="4" fill="none" stroke="#ffcc80" stroke-width="1.5"/>
+
+    <!-- Scale bar -->
+    <line x1="30" y1="770" x2="230" y2="770" stroke="#607d8b" stroke-width="2"/>
+    <line x1="30" y1="765" x2="30" y2="775" stroke="#607d8b" stroke-width="1.5"/>
+    <line x1="230" y1="765" x2="230" y2="775" stroke="#607d8b" stroke-width="1.5"/>
+    <text x="130" y="762" text-anchor="middle" class="scale-bar">1 km</text>
+  </svg>
+  <div class="notes">
+    40 pods across 5 rings. Green space between every pod. Density increases toward center.
+    Outer pods are large and spread out; center pods are compact vertical villages.
+    The 50m park buffer between pods creates a continuous green network throughout the city.
+    Total diameter ~4.4 km. A 10-minute bike ride from any edge to center.
+  </div>
+</div>
+
+</body>
+</html>
