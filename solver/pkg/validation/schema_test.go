@@ -18,9 +18,11 @@ func validSpec() *spec.CitySpec {
 			MaxHeightEdge:   4,
 		},
 		CityZones: spec.CityZones{
-			Center: spec.ZoneDef{Character: "civic_commercial", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
-			Middle: spec.ZoneDef{Character: "mixed", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
-			Edge:   spec.ZoneDef{Character: "family", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			Rings: []spec.RingDef{
+				{Name: "center", Character: "civic_commercial", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
+				{Name: "middle", Character: "mixed", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
+				{Name: "edge", Character: "family", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			},
 			Perimeter: spec.PerimeterDef{RadiusFrom: 900, RadiusTo: 1100},
 			SolarRing: spec.SolarRingDef{RadiusFrom: 1100, RadiusTo: 1500, AreaHa: 250, CapacityMW: 500, AvgOutputMW: 100},
 		},
@@ -90,18 +92,18 @@ func TestValidateSchemaNegativeRatio(t *testing.T) {
 
 func TestValidateSchemaZoneGap(t *testing.T) {
 	s := validSpec()
-	s.CityZones.Middle.RadiusFrom = 350 // gap between center(300) and middle(350)
+	s.CityZones.Rings[1].RadiusFrom = 350 // gap between center(300) and middle(350)
 	r := ValidateSchema(s)
 	if r.Valid {
 		t.Error("expected invalid for zone gap")
 	}
-	assertHasError(t, r, "city_zones.middle.radius_from")
+	assertHasError(t, r, "city_zones.rings[1].radius_from")
 }
 
 func TestValidateSchemaZoneInverted(t *testing.T) {
 	s := validSpec()
-	s.CityZones.Center.RadiusFrom = 300
-	s.CityZones.Center.RadiusTo = 0
+	s.CityZones.Rings[0].RadiusFrom = 300
+	s.CityZones.Rings[0].RadiusTo = 0
 	r := ValidateSchema(s)
 	if r.Valid {
 		t.Error("expected invalid for inverted zone radii")
@@ -140,7 +142,7 @@ func TestValidateSchemaRevenue(t *testing.T) {
 
 func TestValidateSchemaMaxStories(t *testing.T) {
 	s := validSpec()
-	s.CityZones.Edge.MaxStories = 0
+	s.CityZones.Rings[2].MaxStories = 0
 	r := ValidateSchema(s)
 	if r.Valid {
 		t.Error("expected invalid for max_stories=0")

@@ -19,9 +19,11 @@ func fullDefaultSpec() *spec.CitySpec {
 			MaxHeightEdge:   4,
 		},
 		CityZones: spec.CityZones{
-			Center:    spec.ZoneDef{Character: "civic_commercial", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
-			Middle:    spec.ZoneDef{Character: "mixed", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
-			Edge:      spec.ZoneDef{Character: "family", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			Rings: []spec.RingDef{
+				{Name: "center", Character: "civic_commercial", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
+				{Name: "middle", Character: "mixed", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
+				{Name: "edge", Character: "family", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			},
 			Perimeter: spec.PerimeterDef{RadiusFrom: 900, RadiusTo: 1100},
 			SolarRing: spec.SolarRingDef{RadiusFrom: 1100, RadiusTo: 1500, AreaHa: 250, CapacityMW: 500, AvgOutputMW: 100},
 		},
@@ -61,9 +63,11 @@ func TestResolveDefaultCity(t *testing.T) {
 		t.Errorf("WeightedAvgHH = %v, want ~2.475", params.WeightedAvgHH)
 	}
 
-	// Total households: ~20202
-	if params.TotalHouseholds < 19500 || params.TotalHouseholds > 20500 {
-		t.Errorf("TotalHouseholds = %d, want ~20202", params.TotalHouseholds)
+	// Total households: derived from per-ring avg household sizes.
+	// With "civic_commercial" (1.8), "mixed" (default 2.5), "family" (default 2.5),
+	// the city-wide effective avg is ~2.5, giving ~20,000 HH.
+	if params.TotalHouseholds < 18000 || params.TotalHouseholds > 22000 {
+		t.Errorf("TotalHouseholds = %d, want 18000-22000", params.TotalHouseholds)
 	}
 
 	// Population preserved
@@ -127,12 +131,12 @@ func TestResolveInfeasibleDensity(t *testing.T) {
 	s.City.Population = 500000 // 10x population, same area
 	_, report := Resolve(s)
 
-	// Should produce density errors
+	// Should produce density errors with the new spec path format
 	hasError := false
 	for _, e := range report.Errors {
-		if e.SpecPath == "city_zones.center.max_stories" ||
-			e.SpecPath == "city_zones.middle.max_stories" ||
-			e.SpecPath == "city_zones.edge.max_stories" {
+		if e.SpecPath == "city_zones.rings[0].max_stories" ||
+			e.SpecPath == "city_zones.rings[1].max_stories" ||
+			e.SpecPath == "city_zones.rings[2].max_stories" {
 			hasError = true
 			break
 		}

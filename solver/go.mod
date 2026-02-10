@@ -1,6 +1,6 @@
 module github.com/ChicagoDave/cityplanner
 
-go 1.25.7
+go 1.19
 
 require (
 	github.com/spf13/cobra v1.10.2

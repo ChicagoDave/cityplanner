@@ -61,12 +61,7 @@ func PlaceBuildings(s *spec.CitySpec, pods []Pod, adjacency map[string][]string,
 	// Global unit mix for the entire city.
 	cityMix := DistributeUnits(params.TotalHouseholds, params.Cohorts)
 
-	maxCenter := s.City.MaxHeightCenter
-	maxEdge := s.City.MaxHeightEdge
-	maxMiddle := (maxCenter + maxEdge) / 2 // Infer middle from spec.
-	if s.CityZones.Middle.MaxStories > 0 {
-		maxMiddle = s.CityZones.Middle.MaxStories
-	}
+	rings := s.CityZones.Rings
 
 	var allBuildings []Building
 	var allPaths []PathSegment
@@ -79,11 +74,10 @@ func PlaceBuildings(s *spec.CitySpec, pods []Pod, adjacency map[string][]string,
 		podCenterMap[p.ID] = p.CenterPoint()
 	}
 
-	// Build a ring radii lookup from spec zones.
-	ringRadii := map[string][2]float64{
-		"center": {s.CityZones.Center.RadiusFrom, s.CityZones.Center.RadiusTo},
-		"middle": {s.CityZones.Middle.RadiusFrom, s.CityZones.Middle.RadiusTo},
-		"edge":   {s.CityZones.Edge.RadiusFrom, s.CityZones.Edge.RadiusTo},
+	// Build a ring radii lookup from spec rings.
+	ringRadii := make(map[string][2]float64, len(rings))
+	for _, ring := range rings {
+		ringRadii[ring.Name] = [2]float64{ring.RadiusFrom, ring.RadiusTo}
 	}
 
 	for _, pod := range pods {
@@ -131,7 +125,7 @@ func PlaceBuildings(s *spec.CitySpec, pods []Pod, adjacency map[string][]string,
 					if podDU >= podDUTarget {
 						break
 					}
-					buildings, du := placeResidentialOnBlock(block, pod, maxCenter, maxMiddle, maxEdge, &buildingIdx)
+					buildings, du := placeResidentialOnBlock(block, pod, rings, &buildingIdx)
 					allBuildings = append(allBuildings, buildings...)
 					podDU += du
 				}
@@ -147,7 +141,7 @@ func PlaceBuildings(s *spec.CitySpec, pods []Pod, adjacency map[string][]string,
 					if comPlaced >= comTarget {
 						break
 					}
-					buildings := placeCommercialOnBlock(block, pod, maxCenter, maxMiddle, maxEdge, &buildingIdx)
+					buildings := placeCommercialOnBlock(block, pod, rings, &buildingIdx)
 					remaining := comTarget - comPlaced
 					if len(buildings) > remaining {
 						buildings = buildings[:remaining]
@@ -161,7 +155,7 @@ func PlaceBuildings(s *spec.CitySpec, pods []Pod, adjacency map[string][]string,
 				// Bypass block subdivision since civic zones can be narrow.
 				if pr, ok := s.Pods.RingAssignments[pod.Ring]; ok {
 					for si, svc := range pr.RequiredServices {
-						b := placeServiceAtZone(zone, pod, svc, si, maxCenter, maxMiddle, maxEdge, &buildingIdx)
+						b := placeServiceAtZone(zone, pod, svc, si, rings, &buildingIdx)
 						allBuildings = append(allBuildings, b)
 					}
 				}
@@ -193,7 +187,7 @@ func PlaceBuildings(s *spec.CitySpec, pods []Pod, adjacency map[string][]string,
 
 // placeResidentialOnBlock places residential buildings on a block using a
 // courtyard pattern: buildings around the perimeter with open center.
-func placeResidentialOnBlock(block Block, pod Pod, maxCenter, maxMiddle, maxEdge int, idx *int) ([]Building, int) {
+func placeResidentialOnBlock(block Block, pod Pod, rings []spec.RingDef, idx *int) ([]Building, int) {
 	const (
 		buildingW = 20.0 // width (m)
 		buildingD = 15.0 // depth (m)
@@ -205,7 +199,7 @@ func placeResidentialOnBlock(block Block, pod Pod, maxCenter, maxMiddle, maxEdge
 
 	centroid := block.Polygon.Centroid()
 	dist := centroid.Distance(geo.Origin)
-	stories := MaxStories(dist, maxCenter, maxMiddle, maxEdge)
+	stories := MaxStoriesFromRings(dist, rings)
 	unitsPerFloor := int(math.Max(1, math.Floor(buildingW*buildingD/unitArea)))
 	unitsPerBuilding := unitsPerFloor * stories
 
@@ -266,18 +260,18 @@ func placeResidentialOnBlock(block Block, pod Pod, maxCenter, maxMiddle, maxEdge
 }
 
 // placeCommercialOnBlock places commercial buildings on a block.
-func placeCommercialOnBlock(block Block, pod Pod, maxCenter, maxMiddle, maxEdge int, idx *int) []Building {
+func placeCommercialOnBlock(block Block, pod Pod, rings []spec.RingDef, idx *int) []Building {
 	const (
-		buildingW = 25.0
-		buildingD = 20.0
-		spacing   = 2.0
-		setback   = 3.0
+		buildingW     = 25.0
+		buildingD     = 20.0
+		spacing       = 2.0
+		setback       = 3.0
 		maxComStories = 6
 	)
 
 	centroid := block.Polygon.Centroid()
 	dist := centroid.Distance(geo.Origin)
-	stories := MaxStories(dist, maxCenter, maxMiddle, maxEdge)
+	stories := MaxStoriesFromRings(dist, rings)
 	if stories > maxComStories {
 		stories = maxComStories
 	}
@@ -320,7 +314,7 @@ func placeCommercialOnBlock(block Block, pod Pod, maxCenter, maxMiddle, maxEdge 
 
 // placeServiceAtZone places a service building within a zone when no blocks
 // are available, using the zone centroid with an offset for each service.
-func placeServiceAtZone(zone Zone, pod Pod, serviceType string, index int, maxCenter, maxMiddle, maxEdge int, idx *int) Building {
+func placeServiceAtZone(zone Zone, pod Pod, serviceType string, index int, rings []spec.RingDef, idx *int) Building {
 	fp, ok := serviceFootprints[serviceType]
 	if !ok {
 		fp = [2]float64{25, 20}
@@ -336,7 +330,7 @@ func placeServiceAtZone(zone Zone, pod Pod, serviceType string, index int, maxCe
 	pos := centroid.Add(outward.Perp().Scale(offset - float64(index)*20))
 
 	dist := pos.Distance(geo.Origin)
-	stories := MaxStories(dist, maxCenter, maxMiddle, maxEdge)
+	stories := MaxStoriesFromRings(dist, rings)
 
 	switch serviceType {
 	case "hospital":
@@ -367,7 +361,7 @@ func placeServiceAtZone(zone Zone, pod Pod, serviceType string, index int, maxCe
 }
 
 // placeServiceBuilding places a civic/service building on a block.
-func placeServiceBuilding(block Block, pod Pod, serviceType string, maxCenter, maxMiddle, maxEdge int, idx *int) Building {
+func placeServiceBuilding(block Block, pod Pod, serviceType string, rings []spec.RingDef, idx *int) Building {
 	fp, ok := serviceFootprints[serviceType]
 	if !ok {
 		fp = [2]float64{25, 20}
@@ -375,7 +369,7 @@ func placeServiceBuilding(block Block, pod Pod, serviceType string, maxCenter, m
 
 	centroid := block.Polygon.Centroid()
 	dist := centroid.Distance(geo.Origin)
-	stories := MaxStories(dist, maxCenter, maxMiddle, maxEdge)
+	stories := MaxStoriesFromRings(dist, rings)
 
 	// Service buildings are typically shorter.
 	switch serviceType {

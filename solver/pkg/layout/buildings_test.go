@@ -95,6 +95,8 @@ func TestPlaceBuildingsAllPodsHaveBuildings(t *testing.T) {
 }
 
 func TestEnvelopeMaxStories(t *testing.T) {
+	// With contiguous rings, each ring returns its flat max_stories value.
+	// center (0-300): 20, middle (300-600): 10, edge (600-900): 4
 	tests := []struct {
 		dist     float64
 		expected int
@@ -102,9 +104,9 @@ func TestEnvelopeMaxStories(t *testing.T) {
 		{0, 20},
 		{150, 20},
 		{300, 20},
-		{450, 15},
+		{450, 10},
 		{600, 10},
-		{750, 7},
+		{750, 4},
 		{900, 4},
 	}
 	for _, tt := range tests {

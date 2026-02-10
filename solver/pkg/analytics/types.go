@@ -11,7 +11,7 @@ type CohortBreakdown struct {
 	Children      int     `json:"children"`
 }
 
-// RingData holds computed data for one concentric ring (center/middle/edge).
+// RingData holds computed data for one concentric ring.
 type RingData struct {
 	Name              string  `json:"name"`
 	RadiusFrom        float64 `json:"radius_from_m"`
@@ -23,6 +23,7 @@ type RingData struct {
 	PodCount          int     `json:"pod_count"`
 	PodPopulation     int     `json:"pod_population"`
 	MaxStories        int     `json:"max_stories"`
+	AvgHouseholdSize  float64 `json:"avg_household_size"`
 	RequiredDensity   float64 `json:"required_density_du_ha"`
 	AchievableDensity float64 `json:"achievable_density_du_ha"`
 	ResidentialAreaHa float64 `json:"residential_area_ha"`

@@ -1,8 +1,6 @@
 package analytics
 
 import (
-	"math"
-
 	"github.com/ChicagoDave/cityplanner/pkg/spec"
 	"github.com/ChicagoDave/cityplanner/pkg/validation"
 )
@@ -38,18 +36,20 @@ func Resolve(s *spec.CitySpec) (*ResolvedParameters, *validation.Report) {
 
 	// 1. Demographics
 	cohorts, weightedAvg := resolveDemographics(s)
-	totalHH := 0
-	if weightedAvg > 0 {
-		totalHH = int(math.Round(float64(s.City.Population) / weightedAvg))
-	}
 	depRatio := computeDependencyRatio(cohorts)
 	adults, children, students := sumCohortTotals(cohorts)
 
 	// 2. Areas
 	areas := resolveAreas(s)
 
-	// 3. Rings
-	rings := resolveRings(s, totalHH, s.City.Population)
+	// 3. Rings (capacity-weighted population distribution)
+	rings := resolveRings(s, s.City.Population)
+
+	// Total households derived from per-ring household counts.
+	totalHH := 0
+	for _, r := range rings {
+		totalHH += r.Households
+	}
 
 	// 4. Pod count
 	podCount := 0

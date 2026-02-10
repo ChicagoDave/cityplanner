@@ -5,10 +5,9 @@ import "github.com/ChicagoDave/cityplanner/pkg/spec"
 // CollectGreenZones re-computes zone allocation for all pods and returns
 // only the green zones. Used by scene graph assembly for park entities.
 func CollectGreenZones(s *spec.CitySpec, pods []Pod) []Zone {
-	ringRadii := map[string][2]float64{
-		"center": {s.CityZones.Center.RadiusFrom, s.CityZones.Center.RadiusTo},
-		"middle": {s.CityZones.Middle.RadiusFrom, s.CityZones.Middle.RadiusTo},
-		"edge":   {s.CityZones.Edge.RadiusFrom, s.CityZones.Edge.RadiusTo},
+	ringRadii := make(map[string][2]float64, len(s.CityZones.Rings))
+	for _, ring := range s.CityZones.Rings {
+		ringRadii[ring.Name] = [2]float64{ring.RadiusFrom, ring.RadiusTo}
 	}
 
 	var greens []Zone

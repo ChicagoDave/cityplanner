@@ -9,7 +9,7 @@
     "spec_version": {
       "type": "string",
       "description": "Schema version for forward compatibility",
-      "default": "0.1.0"
+      "default": "0.2.0"
     },
     "city": {
       "type": "object",
@@ -42,14 +42,14 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 40,
-          "default": 20,
+          "default": 32,
           "description": "Maximum building stories at city center"
         },
         "max_height_edge": {
           "type": "integer",
           "minimum": 1,
           "maximum": 20,
-          "default": 4,
+          "default": 2,
           "description": "Maximum building stories at city edge"
         }
       }
@@ -58,14 +58,29 @@
       "type": "object",
       "description": "Concentric ring zone definitions",
       "properties": {
-        "center": {
-          "$ref": "#/$defs/zone"
+        "rings": {
+          "type": "array",
+          "description": "Ordered list of concentric rings, innermost first",
+          "items": { "$ref": "#/$defs/ring" }
         },
-        "middle": {
-          "$ref": "#/$defs/zone"
+        "perimeter_infrastructure": {
+          "type": "object",
+          "properties": {
+            "radius_from": { "type": "number", "minimum": 0 },
+            "radius_to": { "type": "number", "minimum": 0 },
+            "contents": { "type": "array", "items": { "type": "string" } },
+            "below_grade": { "type": "boolean" }
+          }
         },
-        "edge": {
-          "$ref": "#/$defs/zone"
+        "solar_ring": {
+          "type": "object",
+          "properties": {
+            "radius_from": { "type": "number", "minimum": 0 },
+            "radius_to": { "type": "number", "minimum": 0 },
+            "area_ha": { "type": "number", "minimum": 0 },
+            "capacity_mw": { "type": "number", "minimum": 0 },
+            "avg_output_mw": { "type": "number", "minimum": 0 }
+          }
         }
       }
     },
@@ -112,10 +127,12 @@
     }
   },
   "$defs": {
-    "zone": {
+    "ring": {
       "type": "object",
+      "required": ["name", "radius_from", "radius_to", "max_stories"],
       "properties": {
-        "character": { "type": "string" },
+        "name": { "type": "string", "description": "Ring identifier (e.g. center, ring4, ring3)" },
+        "character": { "type": "string", "description": "Ring character type" },
         "radius_from": { "type": "number", "minimum": 0 },
         "radius_to": { "type": "number", "minimum": 0 },
         "max_stories": { "type": "integer", "minimum": 1 }

@@ -72,64 +72,48 @@ func validateDemographics(s *spec.CitySpec, r *Report) {
 }
 
 func validateZones(s *spec.CitySpec, r *Report) {
-	zones := []struct {
-		name string
-		from float64
-		to   float64
-	}{
-		{"center", s.CityZones.Center.RadiusFrom, s.CityZones.Center.RadiusTo},
-		{"middle", s.CityZones.Middle.RadiusFrom, s.CityZones.Middle.RadiusTo},
-		{"edge", s.CityZones.Edge.RadiusFrom, s.CityZones.Edge.RadiusTo},
+	rings := s.CityZones.Rings
+
+	if len(rings) == 0 {
+		r.AddError(Result{
+			Level:    LevelSchema,
+			Message:  "city_zones.rings must contain at least one ring",
+			SpecPath: "city_zones.rings",
+			Expected: "at least 1 ring",
+		})
+		return
 	}
 
-	for _, z := range zones {
-		if z.from >= z.to {
+	for i, ring := range rings {
+		if ring.RadiusFrom >= ring.RadiusTo {
 			r.AddError(Result{
 				Level:       LevelSchema,
-				Message:     fmt.Sprintf("city_zones.%s: radius_from (%.0f) must be less than radius_to (%.0f)", z.name, z.from, z.to),
-				SpecPath:    fmt.Sprintf("city_zones.%s", z.name),
-				ActualValue: fmt.Sprintf("%.0f-%.0f", z.from, z.to),
+				Message:     fmt.Sprintf("city_zones.rings[%d] (%s): radius_from (%.0f) must be less than radius_to (%.0f)", i, ring.Name, ring.RadiusFrom, ring.RadiusTo),
+				SpecPath:    fmt.Sprintf("city_zones.rings[%d]", i),
+				ActualValue: fmt.Sprintf("%.0f-%.0f", ring.RadiusFrom, ring.RadiusTo),
+			})
+		}
+
+		if ring.MaxStories <= 0 {
+			r.AddError(Result{
+				Level:       LevelSchema,
+				Message:     fmt.Sprintf("city_zones.rings[%d] (%s): max_stories must be > 0", i, ring.Name),
+				SpecPath:    fmt.Sprintf("city_zones.rings[%d].max_stories", i),
+				ActualValue: ring.MaxStories,
+				Expected:    "> 0",
 			})
 		}
 	}
 
-	// Continuity: center.to == middle.from, middle.to == edge.from
-	if s.CityZones.Center.RadiusTo != s.CityZones.Middle.RadiusFrom {
-		r.AddError(Result{
-			Level:       LevelSchema,
-			Message:     fmt.Sprintf("zone gap: center ends at %.0fm but middle starts at %.0fm", s.CityZones.Center.RadiusTo, s.CityZones.Middle.RadiusFrom),
-			SpecPath:    "city_zones.middle.radius_from",
-			ActualValue: s.CityZones.Middle.RadiusFrom,
-			Expected:    fmt.Sprintf("%.0f (matching center.radius_to)", s.CityZones.Center.RadiusTo),
-		})
-	}
-	if s.CityZones.Middle.RadiusTo != s.CityZones.Edge.RadiusFrom {
-		r.AddError(Result{
-			Level:       LevelSchema,
-			Message:     fmt.Sprintf("zone gap: middle ends at %.0fm but edge starts at %.0fm", s.CityZones.Middle.RadiusTo, s.CityZones.Edge.RadiusFrom),
-			SpecPath:    "city_zones.edge.radius_from",
-			ActualValue: s.CityZones.Edge.RadiusFrom,
-			Expected:    fmt.Sprintf("%.0f (matching middle.radius_to)", s.CityZones.Middle.RadiusTo),
-		})
-	}
-
-	// Max stories
-	storyZones := []struct {
-		name    string
-		stories int
-	}{
-		{"center", s.CityZones.Center.MaxStories},
-		{"middle", s.CityZones.Middle.MaxStories},
-		{"edge", s.CityZones.Edge.MaxStories},
-	}
-	for _, z := range storyZones {
-		if z.stories <= 0 {
+	// Continuity: each ring's radius_to must equal the next ring's radius_from.
+	for i := 0; i < len(rings)-1; i++ {
+		if rings[i].RadiusTo != rings[i+1].RadiusFrom {
 			r.AddError(Result{
 				Level:       LevelSchema,
-				Message:     fmt.Sprintf("city_zones.%s.max_stories must be > 0", z.name),
-				SpecPath:    fmt.Sprintf("city_zones.%s.max_stories", z.name),
-				ActualValue: z.stories,
-				Expected:    "> 0",
+				Message:     fmt.Sprintf("zone gap: %s ends at %.0fm but %s starts at %.0fm", rings[i].Name, rings[i].RadiusTo, rings[i+1].Name, rings[i+1].RadiusFrom),
+				SpecPath:    fmt.Sprintf("city_zones.rings[%d].radius_from", i+1),
+				ActualValue: rings[i+1].RadiusFrom,
+				Expected:    fmt.Sprintf("%.0f (matching %s.radius_to)", rings[i].RadiusTo, rings[i].Name),
 			})
 		}
 	}

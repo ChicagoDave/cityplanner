@@ -16,9 +16,11 @@ func defaultSpec() *spec.CitySpec {
 			MaxHeightEdge:   4,
 		},
 		CityZones: spec.CityZones{
-			Center:    spec.ZoneDef{RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
-			Middle:    spec.ZoneDef{RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
-			Edge:      spec.ZoneDef{RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			Rings: []spec.RingDef{
+				{Name: "center", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
+				{Name: "middle", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
+				{Name: "edge", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			},
 			Perimeter: spec.PerimeterDef{RadiusFrom: 900, RadiusTo: 1100},
 			SolarRing: spec.SolarRingDef{RadiusFrom: 1100, RadiusTo: 1500, AreaHa: 250},
 		},
@@ -37,7 +39,7 @@ func defaultSpec() *spec.CitySpec {
 
 func TestResolveRingsAreas(t *testing.T) {
 	s := defaultSpec()
-	rings := resolveRings(s, 20000, 50000)
+	rings := resolveRings(s, 50000)
 
 	if len(rings) != 3 {
 		t.Fatalf("expected 3 rings, got %d", len(rings))
@@ -73,7 +75,7 @@ func TestResolveRingsAreas(t *testing.T) {
 
 func TestResolveRingsPodCounts(t *testing.T) {
 	s := defaultSpec()
-	rings := resolveRings(s, 20000, 50000)
+	rings := resolveRings(s, 50000)
 
 	// Pod area = pi * 400^2 = 502655 m^2 = 50.27 ha
 	// Center pods: ceil(28.27 / 50.27) = 1
@@ -92,7 +94,7 @@ func TestResolveRingsPodCounts(t *testing.T) {
 
 func TestResolveRingsDensity(t *testing.T) {
 	s := defaultSpec()
-	rings := resolveRings(s, 20000, 50000)
+	rings := resolveRings(s, 50000)
 
 	for _, ring := range rings {
 		if ring.RequiredDensity <= 0 {
@@ -153,5 +155,35 @@ func TestResolveEnergy(t *testing.T) {
 	// Backup hours: 3000 / 125 = 24
 	if math.Abs(e.BackupHours-24.0) > 0.1 {
 		t.Errorf("backup hours = %.1f, want 24.0", e.BackupHours)
+	}
+}
+
+func TestResolveRingsCapacityWeightedPopulation(t *testing.T) {
+	s := defaultSpec()
+	rings := resolveRings(s, 50000)
+
+	// With capacity-weighted model, inner rings (taller buildings) should have
+	// more people per pod than outer rings (shorter buildings).
+	// Default spec has no character set (all default), so weighting is purely
+	// by area × max_stories. Center (20 stories) should have highest per-pod pop.
+	if rings[0].PodPopulation <= rings[2].PodPopulation {
+		t.Errorf("center pod pop (%d) should exceed edge pod pop (%d) with capacity weighting",
+			rings[0].PodPopulation, rings[2].PodPopulation)
+	}
+
+	// Total population should sum to target.
+	totalPop := 0
+	for _, ring := range rings {
+		totalPop += ring.Population
+	}
+	if totalPop != 50000 {
+		t.Errorf("total population = %d, want 50000", totalPop)
+	}
+
+	// Each ring should have an average household size set.
+	for _, ring := range rings {
+		if ring.AvgHouseholdSize <= 0 {
+			t.Errorf("%s ring avg household size = %.1f, want > 0", ring.Name, ring.AvgHouseholdSize)
+		}
 	}
 }

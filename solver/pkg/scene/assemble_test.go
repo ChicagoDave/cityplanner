@@ -19,9 +19,11 @@ func testSpec() *spec.CitySpec {
 			MaxHeightEdge:   4,
 		},
 		CityZones: spec.CityZones{
-			Center: spec.ZoneDef{RadiusFrom: 0, RadiusTo: 300, MaxStories: 20, Character: "civic_commercial"},
-			Middle: spec.ZoneDef{RadiusFrom: 300, RadiusTo: 600, MaxStories: 10, Character: "mixed_residential_commercial"},
-			Edge:   spec.ZoneDef{RadiusFrom: 600, RadiusTo: 900, MaxStories: 4, Character: "family_education"},
+			Rings: []spec.RingDef{
+				{Name: "center", Character: "civic_commercial", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
+				{Name: "middle", Character: "mixed_residential_commercial", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
+				{Name: "edge", Character: "family_education", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			},
 		},
 		Pods: spec.PodsDef{
 			WalkRadius: 400,
@@ -45,15 +47,17 @@ func testSpec() *spec.CitySpec {
 }
 
 func testParams() *analytics.ResolvedParameters {
+	// Capacity-weighted: center gets more per pod (civic_commercial, tall),
+	// edge gets less (family, low-rise).
 	return &analytics.ResolvedParameters{
 		TotalPopulation: 50000,
-		TotalHouseholds: 20202,
+		TotalHouseholds: 21296,
 		PodCount:        6,
 		TotalAreaHa:     254.47,
 		Rings: []analytics.RingData{
-			{Name: "center", RadiusFrom: 0, RadiusTo: 300, AreaHa: 28.27, Population: 8333, Households: 3367, PodCount: 1, PodPopulation: 8333, MaxStories: 20, ResidentialAreaHa: 16.96},
-			{Name: "middle", RadiusFrom: 300, RadiusTo: 600, AreaHa: 84.82, Population: 16667, Households: 6734, PodCount: 2, PodPopulation: 8333, MaxStories: 10, ResidentialAreaHa: 50.89},
-			{Name: "edge", RadiusFrom: 600, RadiusTo: 900, AreaHa: 141.37, Population: 25000, Households: 10101, PodCount: 3, PodPopulation: 8333, MaxStories: 4, ResidentialAreaHa: 84.82},
+			{Name: "center", RadiusFrom: 0, RadiusTo: 300, AreaHa: 28.27, Population: 8332, Households: 4629, PodCount: 1, PodPopulation: 8332, MaxStories: 20, AvgHouseholdSize: 1.8, ResidentialAreaHa: 8.48},
+			{Name: "middle", RadiusFrom: 300, RadiusTo: 600, AreaHa: 84.82, Population: 24995, Households: 9998, PodCount: 2, PodPopulation: 12497, MaxStories: 10, AvgHouseholdSize: 2.5, ResidentialAreaHa: 50.89},
+			{Name: "edge", RadiusFrom: 600, RadiusTo: 900, AreaHa: 141.37, Population: 16673, Households: 6669, PodCount: 3, PodPopulation: 5557, MaxStories: 4, AvgHouseholdSize: 2.5, ResidentialAreaHa: 84.82},
 		},
 	}
 }

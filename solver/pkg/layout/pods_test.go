@@ -18,9 +18,11 @@ func defaultSpec() *spec.CitySpec {
 			MaxHeightEdge:   4,
 		},
 		CityZones: spec.CityZones{
-			Center: spec.ZoneDef{RadiusFrom: 0, RadiusTo: 300, MaxStories: 20, Character: "civic_commercial"},
-			Middle: spec.ZoneDef{RadiusFrom: 300, RadiusTo: 600, MaxStories: 10, Character: "mixed_residential_commercial"},
-			Edge:   spec.ZoneDef{RadiusFrom: 600, RadiusTo: 900, MaxStories: 4, Character: "family_education"},
+			Rings: []spec.RingDef{
+				{Name: "center", Character: "civic_commercial", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
+				{Name: "middle", Character: "mixed_residential_commercial", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
+				{Name: "edge", Character: "family_education", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			},
 		},
 		Pods: spec.PodsDef{
 			WalkRadius: 400,
@@ -40,9 +42,13 @@ func defaultSpec() *spec.CitySpec {
 }
 
 func defaultParams() *analytics.ResolvedParameters {
+	// Capacity-weighted population: center gets more per pod (tall buildings),
+	// edge gets less (low-rise). civic_commercial → resFrac=0.30, avgHH=1.8;
+	// others → default resFrac=0.60, avgHH=2.5.
+	// Weights: center=169.6, middle=508.9, edge=339.3, total=1017.8
 	return &analytics.ResolvedParameters{
 		TotalPopulation: 50000,
-		TotalHouseholds: 20202,
+		TotalHouseholds: 21296,
 		PodCount:        6,
 		TotalAreaHa:     254.47,
 		Rings: []analytics.RingData{
@@ -51,23 +57,25 @@ func defaultParams() *analytics.ResolvedParameters {
 				RadiusFrom:        0,
 				RadiusTo:          300,
 				AreaHa:            28.27,
-				Population:        8333,
-				Households:        3367,
+				Population:        8332,
+				Households:        4629,
 				PodCount:          1,
-				PodPopulation:     8333,
+				PodPopulation:     8332,
 				MaxStories:        20,
-				ResidentialAreaHa: 16.96,
+				AvgHouseholdSize:  1.8,
+				ResidentialAreaHa: 8.48,
 			},
 			{
 				Name:              "middle",
 				RadiusFrom:        300,
 				RadiusTo:          600,
 				AreaHa:            84.82,
-				Population:        16667,
-				Households:        6734,
+				Population:        24995,
+				Households:        9998,
 				PodCount:          2,
-				PodPopulation:     8333,
+				PodPopulation:     12497,
 				MaxStories:        10,
+				AvgHouseholdSize:  2.5,
 				ResidentialAreaHa: 50.89,
 			},
 			{
@@ -75,11 +83,12 @@ func defaultParams() *analytics.ResolvedParameters {
 				RadiusFrom:        600,
 				RadiusTo:          900,
 				AreaHa:            141.37,
-				Population:        25000,
-				Households:        10101,
+				Population:        16673,
+				Households:        6669,
 				PodCount:          3,
-				PodPopulation:     8333,
+				PodPopulation:     5557,
 				MaxStories:        4,
+				AvgHouseholdSize:  2.5,
 				ResidentialAreaHa: 84.82,
 			},
 		},

@@ -35,6 +35,34 @@ func zoneProportions(ringChar string) map[ZoneType]float64 {
 			ZoneCivic:       0.25,
 			ZoneGreen:       0.15,
 		}
+	case "high_density":
+		return map[ZoneType]float64{
+			ZoneResidential: 0.50,
+			ZoneCommercial:  0.20,
+			ZoneCivic:       0.10,
+			ZoneGreen:       0.20,
+		}
+	case "urban_midrise":
+		return map[ZoneType]float64{
+			ZoneResidential: 0.55,
+			ZoneCommercial:  0.15,
+			ZoneCivic:       0.10,
+			ZoneGreen:       0.20,
+		}
+	case "mixed_residential":
+		return map[ZoneType]float64{
+			ZoneResidential: 0.60,
+			ZoneCommercial:  0.10,
+			ZoneCivic:       0.10,
+			ZoneGreen:       0.20,
+		}
+	case "low_density":
+		return map[ZoneType]float64{
+			ZoneResidential: 0.55,
+			ZoneCommercial:  0.10,
+			ZoneCivic:       0.10,
+			ZoneGreen:       0.25,
+		}
 	default:
 		return map[ZoneType]float64{
 			ZoneResidential: 0.60,

@@ -31,9 +31,11 @@ func specForPopulation(pop int) *spec.CitySpec {
 			Retirees:     0.10,
 		},
 		CityZones: spec.CityZones{
-			Center: spec.ZoneDef{RadiusFrom: 0, RadiusTo: 300 * scale, MaxStories: 20, Character: "civic_commercial"},
-			Middle: spec.ZoneDef{RadiusFrom: 300 * scale, RadiusTo: 600 * scale, MaxStories: 10, Character: "mixed_residential_commercial"},
-			Edge:   spec.ZoneDef{RadiusFrom: 600 * scale, RadiusTo: 900 * scale, MaxStories: 4, Character: "family_education"},
+			Rings: []spec.RingDef{
+				{Name: "center", Character: "civic_commercial", RadiusFrom: 0, RadiusTo: 300 * scale, MaxStories: 20},
+				{Name: "middle", Character: "mixed_residential_commercial", RadiusFrom: 300 * scale, RadiusTo: 600 * scale, MaxStories: 10},
+				{Name: "edge", Character: "family_education", RadiusFrom: 600 * scale, RadiusTo: 900 * scale, MaxStories: 4},
+			},
 		},
 		Pods: spec.PodsDef{
 			WalkRadius: 400,
@@ -107,19 +109,19 @@ func TestLargeCity100K(t *testing.T) {
 }
 
 func BenchmarkFullPipeline50K(b *testing.B) {
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		runFullPipeline(b, 50000)
 	}
 }
 
 func BenchmarkFullPipeline100K(b *testing.B) {
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		runFullPipeline(b, 100000)
 	}
 }
 
 func BenchmarkFullPipeline250K(b *testing.B) {
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		runFullPipeline(b, 250000)
 	}
 }

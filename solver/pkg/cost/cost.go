@@ -73,7 +73,7 @@ func Estimate(s *spec.CitySpec, p *analytics.ResolvedParameters) *Report {
 		civicFloorArea*CivicCostPerM2
 
 	// Infrastructure: estimate network length
-	edgeRadius := s.CityZones.Edge.RadiusTo
+	edgeRadius := s.CityZones.OuterRadius()
 	walkRadius := s.Pods.WalkRadius
 	networkLenPerSystem := 2*edgeRadius + float64(p.PodCount)*2*walkRadius
 	infrastructure := networkLenPerSystem * (InfraWaterCostPerM + InfraSewageCostPerM +

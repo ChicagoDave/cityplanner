@@ -174,23 +174,18 @@ func computeBackbone(s *spec.CitySpec, podCount int) backbone {
 		numRadials = 4
 	}
 
-	perimeterR := s.CityZones.Edge.RadiusTo
+	perimeterR := s.CityZones.OuterRadius()
 	if perimeterR == 0 {
 		perimeterR = 900
 	}
 
-	ringRadii := []float64{
-		s.CityZones.Center.RadiusTo,
-		s.CityZones.Middle.RadiusTo,
-	}
-	// Filter zero values.
-	var filtered []float64
-	for _, r := range ringRadii {
-		if r > 0 {
-			filtered = append(filtered, r)
+	// Ring boundaries are the RadiusTo of each ring except the outermost.
+	var ringRadii []float64
+	for i := 0; i < len(s.CityZones.Rings)-1; i++ {
+		if s.CityZones.Rings[i].RadiusTo > 0 {
+			ringRadii = append(ringRadii, s.CityZones.Rings[i].RadiusTo)
 		}
 	}
-	ringRadii = filtered
 
 	angles := make([]float64, numRadials)
 	for i := range angles {
@@ -345,7 +340,10 @@ func nearestJunction(x, z float64, bb backbone) (float64, float64) {
 // Uses area-proportional estimate: pop ∝ (innerR²/perimeterR²) shared across radials.
 func downstreamPop(innerR, perimeterR float64, totalPop, numRadials int) int {
 	if perimeterR < 1 {
-		return totalPop / max(numRadials, 1)
+		if numRadials < 1 {
+			numRadials = 1
+		}
+		return totalPop / numRadials
 	}
 	fraction := 1 - (innerR*innerR)/(perimeterR*perimeterR)
 	return int(math.Ceil(fraction * float64(totalPop) / float64(numRadials)))

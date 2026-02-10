@@ -25,18 +25,36 @@ type CityDef struct {
 }
 
 type CityZones struct {
-	Center     ZoneDef `yaml:"center" json:"center"`
-	Middle     ZoneDef `yaml:"middle" json:"middle"`
-	Edge       ZoneDef `yaml:"edge" json:"edge"`
-	Perimeter  PerimeterDef `yaml:"perimeter_infrastructure" json:"perimeter_infrastructure"`
-	SolarRing  SolarRingDef `yaml:"solar_ring" json:"solar_ring"`
+	Rings     []RingDef    `yaml:"rings" json:"rings"`
+	Perimeter PerimeterDef `yaml:"perimeter_infrastructure" json:"perimeter_infrastructure"`
+	SolarRing SolarRingDef `yaml:"solar_ring" json:"solar_ring"`
 }
 
-type ZoneDef struct {
-	Character       string  `yaml:"character" json:"character"`
-	RadiusFrom      float64 `yaml:"radius_from" json:"radius_from"`
-	RadiusTo        float64 `yaml:"radius_to" json:"radius_to"`
-	MaxStories      int     `yaml:"max_stories" json:"max_stories"`
+// OuterRadius returns the outermost ring's outer radius.
+func (cz CityZones) OuterRadius() float64 {
+	if len(cz.Rings) == 0 {
+		return 0
+	}
+	return cz.Rings[len(cz.Rings)-1].RadiusTo
+}
+
+// RingByName returns the ring definition with the given name, or nil if not found.
+func (cz CityZones) RingByName(name string) *RingDef {
+	for i := range cz.Rings {
+		if cz.Rings[i].Name == name {
+			return &cz.Rings[i]
+		}
+	}
+	return nil
+}
+
+// RingDef defines a concentric ring zone within the city.
+type RingDef struct {
+	Name       string  `yaml:"name" json:"name"`
+	Character  string  `yaml:"character" json:"character"`
+	RadiusFrom float64 `yaml:"radius_from" json:"radius_from"`
+	RadiusTo   float64 `yaml:"radius_to" json:"radius_to"`
+	MaxStories int     `yaml:"max_stories" json:"max_stories"`
 }
 
 type PerimeterDef struct {

@@ -11,11 +11,11 @@ func TestLoadProject(t *testing.T) {
 		t.Fatalf("LoadProject failed: %v", err)
 	}
 
-	if s.SpecVersion != "0.1.0" {
-		t.Errorf("spec_version = %q, want %q", s.SpecVersion, "0.1.0")
+	if s.SpecVersion != "0.2.0" {
+		t.Errorf("spec_version = %q, want %q", s.SpecVersion, "0.2.0")
 	}
-	if s.City.Population != 50000 {
-		t.Errorf("population = %d, want 50000", s.City.Population)
+	if s.City.Population != 64000 {
+		t.Errorf("population = %d, want 64000", s.City.Population)
 	}
 	if s.City.FootprintShape != "circle" {
 		t.Errorf("footprint_shape = %q, want %q", s.City.FootprintShape, "circle")
@@ -23,22 +23,22 @@ func TestLoadProject(t *testing.T) {
 	if s.City.ExcavationDepth != 8 {
 		t.Errorf("excavation_depth = %v, want 8", s.City.ExcavationDepth)
 	}
-	if s.City.MaxHeightCenter != 20 {
-		t.Errorf("max_height_center = %d, want 20", s.City.MaxHeightCenter)
+	if s.City.MaxHeightCenter != 32 {
+		t.Errorf("max_height_center = %d, want 32", s.City.MaxHeightCenter)
 	}
-	if s.City.MaxHeightEdge != 4 {
-		t.Errorf("max_height_edge = %d, want 4", s.City.MaxHeightEdge)
+	if s.City.MaxHeightEdge != 2 {
+		t.Errorf("max_height_edge = %d, want 2", s.City.MaxHeightEdge)
 	}
 
-	// Zones
-	if s.CityZones.Center.RadiusTo != 300 {
-		t.Errorf("center.radius_to = %v, want 300", s.CityZones.Center.RadiusTo)
+	// Rings: 5 rings from center to ring1
+	if len(s.CityZones.Rings) != 5 {
+		t.Fatalf("expected 5 rings, got %d", len(s.CityZones.Rings))
 	}
-	if s.CityZones.Middle.RadiusFrom != 300 || s.CityZones.Middle.RadiusTo != 600 {
-		t.Errorf("middle radius = %v-%v, want 300-600", s.CityZones.Middle.RadiusFrom, s.CityZones.Middle.RadiusTo)
+	if s.CityZones.Rings[0].Name != "center" || s.CityZones.Rings[0].RadiusTo != 250 {
+		t.Errorf("ring[0] = %s radius_to=%v, want center/250", s.CityZones.Rings[0].Name, s.CityZones.Rings[0].RadiusTo)
 	}
-	if s.CityZones.Edge.RadiusTo != 900 {
-		t.Errorf("edge.radius_to = %v, want 900", s.CityZones.Edge.RadiusTo)
+	if s.CityZones.Rings[4].Name != "ring1" || s.CityZones.Rings[4].RadiusTo != 2200 {
+		t.Errorf("ring[4] = %s radius_to=%v, want ring1/2200", s.CityZones.Rings[4].Name, s.CityZones.Rings[4].RadiusTo)
 	}
 
 	// Demographics
@@ -53,23 +53,23 @@ func TestLoadProject(t *testing.T) {
 	if s.Pods.WalkRadius != 400 {
 		t.Errorf("walk_radius = %v, want 400", s.Pods.WalkRadius)
 	}
-	if len(s.Pods.RingAssignments) != 3 {
-		t.Errorf("ring_assignments count = %d, want 3", len(s.Pods.RingAssignments))
+	if len(s.Pods.RingAssignments) != 5 {
+		t.Errorf("ring_assignments count = %d, want 5", len(s.Pods.RingAssignments))
 	}
-	edge, ok := s.Pods.RingAssignments["edge"]
+	ring1, ok := s.Pods.RingAssignments["ring1"]
 	if !ok {
-		t.Fatal("missing edge ring assignment")
+		t.Fatal("missing ring1 ring assignment")
 	}
-	if len(edge.RequiredServices) != 6 {
-		t.Errorf("edge required_services = %d, want 6", len(edge.RequiredServices))
+	if len(ring1.RequiredServices) != 5 {
+		t.Errorf("ring1 required_services = %d, want 5", len(ring1.RequiredServices))
 	}
 
 	// Infrastructure
 	if s.Infrastructure.Electrical.PeakDemandKWPer != 2.5 {
 		t.Errorf("peak_demand_kw_per_capita = %v, want 2.5", s.Infrastructure.Electrical.PeakDemandKWPer)
 	}
-	if s.Infrastructure.Electrical.BatteryCapacityMWh != 3000 {
-		t.Errorf("battery_capacity_mwh = %v, want 3000", s.Infrastructure.Electrical.BatteryCapacityMWh)
+	if s.Infrastructure.Electrical.BatteryCapacityMWh != 3840 {
+		t.Errorf("battery_capacity_mwh = %v, want 3840", s.Infrastructure.Electrical.BatteryCapacityMWh)
 	}
 
 	// Revenue

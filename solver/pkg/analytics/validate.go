@@ -19,13 +19,13 @@ func validateAnalytical(s *spec.CitySpec, p *ResolvedParameters, report *validat
 }
 
 func validateDensityFeasibility(p *ResolvedParameters, report *validation.Report) {
-	for _, ring := range p.Rings {
+	for i, ring := range p.Rings {
 		if ring.RequiredDensity > ring.AchievableDensity {
 			neededStories := int(math.Ceil(ring.RequiredDensity * avgUnitSizeM2 / (groundCoverage * m2PerHa)))
 			report.AddError(validation.Result{
 				Level:       validation.LevelAnalytical,
 				Message:     fmt.Sprintf("%s ring: required density %.0f du/ha exceeds achievable %.0f du/ha at %d stories", ring.Name, ring.RequiredDensity, ring.AchievableDensity, ring.MaxStories),
-				SpecPath:    fmt.Sprintf("city_zones.%s.max_stories", ring.Name),
+				SpecPath:    fmt.Sprintf("city_zones.rings[%d].max_stories", i),
 				ActualValue: ring.MaxStories,
 				ConflictWith: fmt.Sprintf("required density %.0f du/ha from %d households in %.1f ha residential area",
 					ring.RequiredDensity, ring.Households, ring.ResidentialAreaHa),

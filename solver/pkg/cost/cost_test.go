@@ -15,7 +15,11 @@ func defaultCostSpec() *spec.CitySpec {
 			ExcavationDepth: 8,
 		},
 		CityZones: spec.CityZones{
-			Edge:      spec.ZoneDef{RadiusTo: 900},
+			Rings: []spec.RingDef{
+				{Name: "center", RadiusFrom: 0, RadiusTo: 300, MaxStories: 20},
+				{Name: "middle", RadiusFrom: 300, RadiusTo: 600, MaxStories: 10},
+				{Name: "edge", RadiusFrom: 600, RadiusTo: 900, MaxStories: 4},
+			},
 			SolarRing: spec.SolarRingDef{AreaHa: 250},
 		},
 		Pods: spec.PodsDef{WalkRadius: 400},

@@ -1,69 +1,62 @@
-spec_version: "0.1.0"
+spec_version: "0.2.0"
 
 city:
-  population: 50000
+  population: 64000
   footprint_shape: circle
   excavation_depth: 8       # meters, 3 underground layers
   height_profile: bowl
-  max_height_center: 20     # stories
-  max_height_edge: 4        # stories
+  max_height_center: 32     # stories
+  max_height_edge: 2        # stories
 
 city_zones:
-  center:
-    character: civic_commercial
-    radius_from: 0
-    radius_to: 300
-    max_stories: 20
-  middle:
-    character: mixed_residential_commercial
-    radius_from: 300
-    radius_to: 600
-    max_stories: 10
-  edge:
-    character: family_education
-    radius_from: 600
-    radius_to: 900
-    max_stories: 4
+  rings:
+    - name: center
+      character: civic_commercial
+      radius_from: 0
+      radius_to: 250
+      max_stories: 32
+    - name: ring4
+      character: high_density
+      radius_from: 250
+      radius_to: 500
+      max_stories: 16
+    - name: ring3
+      character: urban_midrise
+      radius_from: 500
+      radius_to: 850
+      max_stories: 8
+    - name: ring2
+      character: mixed_residential
+      radius_from: 850
+      radius_to: 1350
+      max_stories: 4
+    - name: ring1
+      character: low_density
+      radius_from: 1350
+      radius_to: 2200
+      max_stories: 2
   perimeter_infrastructure:
-    radius_from: 900
-    radius_to: 1100
+    radius_from: 2200
+    radius_to: 2700
     contents:
-      - sewage_treatment
+      - solar
       - water_treatment
+      - waste_treatment
       - freight_staging
       - vehicle_maintenance
       - electrical_substation
       - grid_interconnect
     below_grade: true
   solar_ring:
-    radius_from: 1100
-    radius_to: 1500
-    area_ha: 250
-    capacity_mw: 500         # nameplate
-    avg_output_mw: 100
+    radius_from: 2700
+    radius_to: 3200
+    area_ha: 800
+    capacity_mw: 600         # nameplate
+    avg_output_mw: 120
 
 pods:
   walk_radius: 400           # meters (5-minute walk)
   ring_assignments:
-    edge:
-      character: residential_family
-      required_services:
-        - elementary_school
-        - library
-        - grocery
-        - playground
-        - pediatric_clinic
-        - daycare
-      max_stories: 4
-    middle:
-      character: mixed
-      required_services:
-        - secondary_school
-        - coworking
-        - medical_clinic
-        - retail
-        - restaurant
-      max_stories: 10
     center:
       character: civic_commercial
       required_services:
@@ -71,7 +64,44 @@ pods:
         - performing_arts
         - city_hall
         - coworking_hub
-      max_stories: 20
+      max_stories: 32
+    ring4:
+      character: high_density
+      required_services:
+        - secondary_school
+        - coworking
+        - medical_clinic
+        - retail
+        - restaurant
+      max_stories: 16
+    ring3:
+      character: urban_midrise
+      required_services:
+        - coworking
+        - medical_clinic
+        - grocery
+        - retail
+        - restaurant
+        - library
+      max_stories: 8
+    ring2:
+      character: mixed_residential
+      required_services:
+        - elementary_school
+        - grocery
+        - medical_clinic
+        - daycare
+        - playground
+      max_stories: 4
+    ring1:
+      character: low_density
+      required_services:
+        - elementary_school
+        - grocery
+        - playground
+        - pediatric_clinic
+        - daycare
+      max_stories: 2
 
 demographics:
   singles: 0.15
@@ -90,10 +120,10 @@ infrastructure:
     capacity_gpd_per_capita: 95
     effluent: recycle_irrigation
   electrical:
-    solar_integrated_avg_mw: 80
-    solar_farm_avg_mw: 100
-    battery_capacity_mwh: 3000    # 24 hours
-    grid_capacity_mw: 150
+    solar_integrated_avg_mw: 100
+    solar_farm_avg_mw: 120
+    battery_capacity_mwh: 3840    # 24 hours at peak
+    grid_capacity_mw: 200
     peak_demand_kw_per_capita: 2.5
   telecom:
     node_spacing_m: 75
@@ -104,7 +134,7 @@ infrastructure:
 vehicles:
   arterial_width_m: 6
   service_branch_width_m: 4
-  total_fleet: 200
+  total_fleet: 250
 
 logistics:
   daily_packages_per_capita: 1.5
@@ -115,8 +145,8 @@ ownership:
 revenue:
   debt_term_years: 30
   interest_rate: 0.05
-  annual_ops_cost_m: 100
+  annual_ops_cost_m: 130
 
 site_requirements:
-  min_area_ha: 800
+  min_area_ha: 3300
   solar_irradiance_kwh_m2_day: 4.5
