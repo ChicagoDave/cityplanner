@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ChicagoDave/cityplanner/shared/schema/scene-graph.schema.json",
+  "title": "Charter City Scene Graph",
+  "description": "Serialized scene graph output from the solver, consumed by the renderer.",
+  "type": "object",
+  "required": ["metadata", "entities", "groups"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["spec_version", "generated_at"],
+      "properties": {
+        "spec_version": { "type": "string" },
+        "generated_at": { "type": "string", "format": "date-time" },
+        "city_bounds": { "$ref": "#/$defs/bounding_box" }
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entity" }
+    },
+    "groups": {
+      "type": "object",
+      "properties": {
+        "pods": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "type": "string" } }
+        },
+        "systems": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "type": "string" } }
+        },
+        "layers": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "type": "string" } }
+        },
+        "entity_types": {
+          "type": "object",
+          "additionalProperties": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "object",
+      "required": ["x", "y", "z"],
+      "properties": {
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "z": { "type": "number" }
+      }
+    },
+    "bounding_box": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "$ref": "#/$defs/vec3" },
+        "max": { "$ref": "#/$defs/vec3" }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "required": ["id", "type", "position", "dimensions", "layer"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": ["building", "pipe", "lane", "path", "panel", "park"]
+        },
+        "position": { "$ref": "#/$defs/vec3" },
+        "dimensions": { "$ref": "#/$defs/vec3" },
+        "rotation": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "Quaternion [x, y, z, w]"
+        },
+        "material": { "type": "string" },
+        "system": {
+          "type": "string",
+          "enum": ["water", "sewage", "electrical", "telecom", "vehicle"]
+        },
+        "pod": { "type": "string" },
+        "layer": {
+          "type": "string",
+          "enum": ["underground_1", "underground_2", "underground_3", "surface"]
+        },
+        "metadata": { "type": "object" },
+        "children": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

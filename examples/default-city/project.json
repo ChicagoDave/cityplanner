@@ -1,0 +1,14 @@
+{
+  "project_name": "default-city",
+  "spec_file": "city.yaml",
+  "spec_hash": "",
+  "solver_version": "0.1.0",
+  "generated_at": "",
+  "cache_valid": false,
+  "scene_graph_file": "city.scene.json",
+  "cost_report_file": "city.cost.json",
+  "user_preferences": {
+    "default_camera_mode": "bird_eye",
+    "default_visible_layers": ["surface", "underground_3"]
+  }
+}

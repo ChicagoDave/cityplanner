@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ChicagoDave/cityplanner/shared/schema/city-spec.schema.json",
+  "title": "Charter City Specification",
+  "description": "Declarative specification for a charter city design, consumed by the solver.",
+  "type": "object",
+  "required": ["spec_version", "city", "demographics"],
+  "properties": {
+    "spec_version": {
+      "type": "string",
+      "description": "Schema version for forward compatibility",
+      "default": "0.1.0"
+    },
+    "city": {
+      "type": "object",
+      "description": "Top-level city parameters",
+      "required": ["population"],
+      "properties": {
+        "population": {
+          "type": "integer",
+          "minimum": 1000,
+          "description": "Target total population"
+        },
+        "footprint_shape": {
+          "type": "string",
+          "enum": ["circle", "square", "irregular"],
+          "default": "circle"
+        },
+        "excavation_depth": {
+          "type": "number",
+          "minimum": 4,
+          "maximum": 15,
+          "default": 8,
+          "description": "Underground excavation depth in meters"
+        },
+        "height_profile": {
+          "type": "string",
+          "enum": ["bowl", "flat"],
+          "default": "bowl"
+        },
+        "max_height_center": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 40,
+          "default": 20,
+          "description": "Maximum building stories at city center"
+        },
+        "max_height_edge": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 4,
+          "description": "Maximum building stories at city edge"
+        }
+      }
+    },
+    "city_zones": {
+      "type": "object",
+      "description": "Concentric ring zone definitions",
+      "properties": {
+        "center": {
+          "$ref": "#/$defs/zone"
+        },
+        "middle": {
+          "$ref": "#/$defs/zone"
+        },
+        "edge": {
+          "$ref": "#/$defs/zone"
+        }
+      }
+    },
+    "pods": {
+      "type": "object",
+      "properties": {
+        "walk_radius": {
+          "type": "number",
+          "minimum": 200,
+          "maximum": 800,
+          "default": 400,
+          "description": "Maximum walk distance in meters from pod center to any point"
+        }
+      }
+    },
+    "demographics": {
+      "type": "object",
+      "description": "Household cohort ratios (must sum to 1.0)",
+      "required": ["singles", "couples", "families_young", "families_teen", "empty_nest", "retirees"],
+      "properties": {
+        "singles": { "type": "number", "minimum": 0, "maximum": 1 },
+        "couples": { "type": "number", "minimum": 0, "maximum": 1 },
+        "families_young": { "type": "number", "minimum": 0, "maximum": 1 },
+        "families_teen": { "type": "number", "minimum": 0, "maximum": 1 },
+        "empty_nest": { "type": "number", "minimum": 0, "maximum": 1 },
+        "retirees": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "infrastructure": {
+      "type": "object",
+      "description": "Infrastructure system parameters"
+    },
+    "vehicles": {
+      "type": "object",
+      "description": "Underground vehicle network parameters"
+    },
+    "revenue": {
+      "type": "object",
+      "description": "Financial model parameters"
+    },
+    "site_requirements": {
+      "type": "object",
+      "description": "Physical site requirements"
+    }
+  },
+  "$defs": {
+    "zone": {
+      "type": "object",
+      "properties": {
+        "character": { "type": "string" },
+        "radius_from": { "type": "number", "minimum": 0 },
+        "radius_to": { "type": "number", "minimum": 0 },
+        "max_stories": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
