@@ -1,6 +1,8 @@
 package analytics
 
 import (
+	"math"
+
 	"github.com/ChicagoDave/cityplanner/pkg/spec"
 	"github.com/ChicagoDave/cityplanner/pkg/validation"
 )
@@ -16,21 +18,81 @@ type ResolvedParameters struct {
 	ExcavationVolumeM3  float64 `json:"excavation_volume_m3"`
 	PerCapitaCost       float64 `json:"per_capita_cost"`
 	BreakEvenRent       float64 `json:"break_even_monthly_rent"`
+
+	Cohorts       []CohortBreakdown `json:"cohorts"`
+	Rings         []RingData        `json:"rings"`
+	Services      []ServiceCount    `json:"services"`
+	Areas         AreaBreakdown     `json:"areas"`
+	Energy        EnergyBalance     `json:"energy"`
+	TotalAdults   int               `json:"total_adults"`
+	TotalChildren int               `json:"total_children"`
+	TotalStudents int               `json:"total_students"`
+	WeightedAvgHH float64           `json:"weighted_avg_household_size"`
 }
 
 // Resolve runs Phase 1 analytical resolution on the spec.
 // It computes demographics, service counts, density, area, and cost estimates.
 // Returns resolved parameters and a validation report.
-func Resolve(_ *spec.CitySpec) (*ResolvedParameters, *validation.Report) {
+func Resolve(s *spec.CitySpec) (*ResolvedParameters, *validation.Report) {
 	report := validation.NewReport()
 
-	// TODO: Implement Phase 1 analytical resolution
-	// - Compute household counts per cohort
-	// - Calculate dependency ratio
-	// - Determine service counts from thresholds
-	// - Calculate pod count and target populations
-	// - Compute required density per ring
-	// - Estimate total area, excavation volume, and cost
+	// 1. Demographics
+	cohorts, weightedAvg := resolveDemographics(s)
+	totalHH := 0
+	if weightedAvg > 0 {
+		totalHH = int(math.Round(float64(s.City.Population) / weightedAvg))
+	}
+	depRatio := computeDependencyRatio(cohorts)
+	adults, children, students := sumCohortTotals(cohorts)
 
-	return &ResolvedParameters{}, report
+	// 2. Areas
+	areas := resolveAreas(s)
+
+	// 3. Rings
+	rings := resolveRings(s, totalHH, s.City.Population)
+
+	// 4. Pod count
+	podCount := 0
+	for _, r := range rings {
+		podCount += r.PodCount
+	}
+
+	// 5. Services
+	services := resolveServices(s.City.Population, students)
+
+	// 6. Energy
+	energy := resolveEnergy(s)
+
+	// 7. Excavation volume
+	excavVol := areas.TotalCityHa * m2PerHa * s.City.ExcavationDepth
+
+	// 8. Overall required density
+	requiredDensity := 0.0
+	if areas.ResidentialHa > 0 {
+		requiredDensity = float64(totalHH) / areas.ResidentialHa
+	}
+
+	params := &ResolvedParameters{
+		TotalHouseholds:     totalHH,
+		TotalPopulation:     s.City.Population,
+		DependencyRatio:     depRatio,
+		PodCount:            podCount,
+		RequiredDensityDUHa: requiredDensity,
+		TotalAreaHa:         areas.TotalCityHa,
+		ExcavationVolumeM3:  excavVol,
+		Cohorts:             cohorts,
+		Rings:               rings,
+		Services:            services,
+		Areas:               areas,
+		Energy:              energy,
+		TotalAdults:         adults,
+		TotalChildren:       children,
+		TotalStudents:       students,
+		WeightedAvgHH:       weightedAvg,
+	}
+
+	// 9. Analytical validation
+	validateAnalytical(s, params, report)
+
+	return params, report
 }

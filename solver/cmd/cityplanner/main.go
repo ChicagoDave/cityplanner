@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/ChicagoDave/cityplanner/internal/server"
@@ -30,9 +29,7 @@ func solveCmd() *cobra.Command {
 		Short: "Run the full solver pipeline and generate a scene graph",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			fmt.Printf("Solving project: %s\n", args[0])
-			fmt.Println("Solver not yet implemented.")
-			return nil
+			return runSolve(args[0])
 		},
 	}
 }
@@ -43,9 +40,7 @@ func validateCmd() *cobra.Command {
 		Short: "Validate a city spec without running the full solver",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			fmt.Printf("Validating project: %s\n", args[0])
-			fmt.Println("Validation not yet implemented.")
-			return nil
+			return runValidate(args[0])
 		},
 	}
 }
@@ -56,9 +51,7 @@ func costCmd() *cobra.Command {
 		Short: "Compute and display cost estimates",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
-			fmt.Printf("Computing cost for project: %s\n", args[0])
-			fmt.Println("Cost model not yet implemented.")
-			return nil
+			return runCost(args[0])
 		},
 	}
 }

@@ -3,6 +3,7 @@ package spec
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -20,4 +21,11 @@ func Load(path string) (*CitySpec, error) {
 	}
 
 	return &spec, nil
+}
+
+// LoadProject loads a city spec from a project directory.
+// It looks for city.yaml in the given directory.
+func LoadProject(projectDir string) (*CitySpec, error) {
+	specPath := filepath.Join(projectDir, "city.yaml")
+	return Load(specPath)
 }

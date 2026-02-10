@@ -73,6 +73,17 @@ func (r *Report) AddInfo(result Result) {
 	r.updateSummary()
 }
 
+// Merge combines another report into this one.
+func (r *Report) Merge(other *Report) {
+	r.Errors = append(r.Errors, other.Errors...)
+	r.Warnings = append(r.Warnings, other.Warnings...)
+	r.Info = append(r.Info, other.Info...)
+	if !other.Valid {
+		r.Valid = false
+	}
+	r.updateSummary()
+}
+
 func (r *Report) updateSummary() {
 	r.Summary = fmt.Sprintf("%d errors, %d warnings, %d info",
 		len(r.Errors), len(r.Warnings), len(r.Info))
