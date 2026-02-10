@@ -28,6 +28,7 @@ func Assemble(
 	assemblePaths(paths, g)
 	assembleRouting(segments, g)
 	assembleParks(greenZones, g)
+	assembleBatteries(s, pods, g)
 
 	g.Metadata = Metadata{
 		SpecVersion: s.SpecVersion,
@@ -95,7 +96,7 @@ func assemblePaths(paths []layout.PathSegment, g *Graph) {
 			},
 			Dimensions: Vec3{
 				X: p.WidthM,
-				Y: 0.1,
+				Y: 0.3,
 				Z: length,
 			},
 			Rotation: yawQuat(angle),
@@ -133,6 +134,14 @@ func assembleRouting(segments []routing.Segment, g *Graph) {
 			eType = EntityLane
 			mat = "asphalt"
 			pipeH = 3.0
+		case routing.NetworkPedway:
+			eType = EntityPedway
+			mat = "paver"
+			pipeH = 2.5
+		case routing.NetworkBikeTunnel:
+			eType = EntityBikeTunnel
+			mat = "paver"
+			pipeH = 2.5
 		}
 
 		layer := layerFromInt(seg.Layer)
@@ -156,9 +165,10 @@ func assembleRouting(segments []routing.Segment, g *Graph) {
 			System:   sys,
 			Layer:    layer,
 			Metadata: map[string]any{
-				"capacity": seg.Capacity,
-				"is_trunk": seg.IsTrunk,
-				"network":  string(seg.Network),
+				"capacity":     seg.Capacity,
+				"is_trunk":     seg.IsTrunk,
+				"network":      string(seg.Network),
+				"connected_to": seg.ConnectedTo,
 			},
 		})
 	}
@@ -167,7 +177,23 @@ func assembleRouting(segments []routing.Segment, g *Graph) {
 func assembleParks(zones []layout.Zone, g *Graph) {
 	for _, z := range zones {
 		centroid := z.Polygon.Centroid()
-		bbMin, bbMax := z.Polygon.BoundingBox()
+
+		// Use actual polygon area to derive park dimensions.
+		// Green zones are thin crescents whose bounding box is much larger
+		// than their actual area. Approximate as a rectangle with 3:1 aspect.
+		area := z.Polygon.Area()
+		parkW := math.Sqrt(area * 3)
+		parkD := area / parkW
+		if parkW < parkD {
+			parkW, parkD = parkD, parkW
+		}
+
+		// Orient the park along the tangent (perpendicular to radial direction).
+		dist := math.Hypot(centroid.X, centroid.Z)
+		angle := 0.0
+		if dist > 1 {
+			angle = math.Atan2(centroid.Z, centroid.X) + math.Pi/2
+		}
 
 		addEntity(g, Entity{
 			ID:   fmt.Sprintf("%s_park", z.ID),
@@ -178,15 +204,49 @@ func assembleParks(zones []layout.Zone, g *Graph) {
 				Z: centroid.Z,
 			},
 			Dimensions: Vec3{
-				X: bbMax.X - bbMin.X,
+				X: parkW,
 				Y: 0.5,
-				Z: bbMax.Z - bbMin.Z,
+				Z: parkD,
 			},
-			Rotation: identityQuat(),
+			Rotation: yawQuat(angle),
 			Material: "grass",
 			Pod:      z.PodID,
 			Layer:    LayerSurface,
 			Metadata: map[string]any{"area_ha": z.AreaHa},
+		})
+	}
+}
+
+func assembleBatteries(s *spec.CitySpec, pods []layout.Pod, g *Graph) {
+	totalMWh := s.Infrastructure.Electrical.BatteryCapacityMWh
+	if totalMWh <= 0 {
+		return
+	}
+	mwhPerPod := totalMWh / float64(len(pods))
+
+	for i, pod := range pods {
+		addEntity(g, Entity{
+			ID:   fmt.Sprintf("battery_%03d", i),
+			Type: EntityBattery,
+			Position: Vec3{
+				X: pod.Center[0],
+				Y: -4.5, // Layer 2 depth
+				Z: pod.Center[1],
+			},
+			Dimensions: Vec3{
+				X: 20.0,
+				Y: 3.0,
+				Z: 20.0,
+			},
+			Rotation: identityQuat(),
+			Material: "steel",
+			System:   SystemElectrical,
+			Pod:      pod.ID,
+			Layer:    LayerUnderground2,
+			Metadata: map[string]any{
+				"capacity_mwh": mwhPerPod,
+				"type":         "battery_storage",
+			},
 		})
 	}
 }
@@ -281,6 +341,10 @@ func systemFromNetwork(n routing.NetworkType) SystemType {
 		return SystemTelecom
 	case routing.NetworkVehicle:
 		return SystemVehicle
+	case routing.NetworkPedway:
+		return SystemPedestrian
+	case routing.NetworkBikeTunnel:
+		return SystemBicycle
 	default:
 		return ""
 	}

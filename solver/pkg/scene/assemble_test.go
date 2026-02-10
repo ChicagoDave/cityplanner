@@ -38,6 +38,9 @@ func testSpec() *spec.CitySpec {
 			},
 		},
 		Vehicles: spec.Vehicles{ArterialWidthM: 6, ServiceBranchWidthM: 4, TotalFleet: 200},
+		Infrastructure: spec.Infrastructure{
+			Electrical: spec.ElectricalInfra{BatteryCapacityMWh: 3000},
+		},
 	}
 }
 
@@ -81,7 +84,7 @@ func TestAssembleProducesGraph(t *testing.T) {
 
 func TestAssembleHasAllEntityTypes(t *testing.T) {
 	g := assembleTestGraph(t)
-	for _, et := range []EntityType{EntityBuilding, EntityPath, EntityPipe, EntityLane, EntityPark} {
+	for _, et := range []EntityType{EntityBuilding, EntityPath, EntityPipe, EntityLane, EntityPark, EntityPedway, EntityBikeTunnel, EntityBattery} {
 		if len(g.Groups.EntityTypes[et]) == 0 {
 			t.Errorf("no entities of type %s", et)
 		} else {
@@ -159,7 +162,7 @@ func TestAssembleLayerAssignment(t *testing.T) {
 		t.Error("no underground_2 entities")
 	}
 	if ug3Count == 0 {
-		t.Error("no underground_3 entities")
+		t.Error("no underground_3 entities (vehicles should be in layer 3)")
 	}
 	t.Logf("layers: surface=%d ug1=%d ug2=%d ug3=%d", surfaceCount, ug1Count, ug2Count, ug3Count)
 }
@@ -177,9 +180,27 @@ func TestAssembleUniqueEntityIDs(t *testing.T) {
 
 func TestAssembleSystemsCoverAllNetworks(t *testing.T) {
 	g := assembleTestGraph(t)
-	for _, sys := range []SystemType{SystemSewage, SystemWater, SystemElectrical, SystemTelecom, SystemVehicle} {
+	for _, sys := range []SystemType{SystemSewage, SystemWater, SystemElectrical, SystemTelecom, SystemVehicle, SystemPedestrian, SystemBicycle} {
 		if len(g.Groups.Systems[sys]) == 0 {
 			t.Errorf("no entities for system %s", sys)
 		}
 	}
+}
+
+func TestAssembleConnectivityInMetadata(t *testing.T) {
+	g := assembleTestGraph(t)
+	connCount := 0
+	for _, e := range g.Entities {
+		if e.Metadata != nil {
+			if ct, ok := e.Metadata["connected_to"]; ok && ct != nil {
+				if ids, ok := ct.([]string); ok && len(ids) > 0 {
+					connCount++
+				}
+			}
+		}
+	}
+	if connCount == 0 {
+		t.Error("no entities have connected_to in metadata")
+	}
+	t.Logf("%d entities have connectivity data", connCount)
 }

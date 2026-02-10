@@ -1,5 +1,9 @@
 import * as THREE from 'three';
 import { CameraModeManager } from './camera/modes';
+import { loadSceneGraph } from './scene/loader';
+import { fetchScene } from './api';
+import { initControls } from './ui/controls';
+import { RouteTracer } from './ui/route-tracer';
 
 const app = document.getElementById('app')!;
 const overlay = document.getElementById('overlay')!;
@@ -18,10 +22,10 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   60,
   window.innerWidth / window.innerHeight,
-  1,
-  10000,
+  0.1,
+  20000,
 );
-const cameraManager = new CameraModeManager(camera);
+const cameraManager = new CameraModeManager(camera, renderer.domElement);
 
 // Lighting
 const ambient = new THREE.AmbientLight(0xffffff, 0.4);
@@ -31,27 +35,14 @@ const directional = new THREE.DirectionalLight(0xffffff, 0.8);
 directional.position.set(500, 1000, 500);
 scene.add(directional);
 
-// Ground plane placeholder
+// Ground plane — sized after scene loads to cover full extent
 const ground = new THREE.Mesh(
-  new THREE.CircleGeometry(900, 64),
+  new THREE.CircleGeometry(1500, 64),
   new THREE.MeshStandardMaterial({ color: 0x1a3a1a, side: THREE.DoubleSide }),
 );
 ground.rotation.x = -Math.PI / 2;
+ground.position.y = -0.1; // slightly below surface entities
 scene.add(ground);
-
-// Ring indicators (center, middle, edge boundaries)
-const ringRadii = [300, 600, 900];
-for (const radius of ringRadii) {
-  const ringGeo = new THREE.RingGeometry(radius - 1, radius + 1, 128);
-  const ringMat = new THREE.MeshBasicMaterial({
-    color: 0x333333,
-    side: THREE.DoubleSide,
-  });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
-  ring.rotation.x = -Math.PI / 2;
-  ring.position.y = 0.1;
-  scene.add(ring);
-}
 
 // Resize handler
 window.addEventListener('resize', () => {
@@ -72,6 +63,24 @@ function animate(): void {
 
 animate();
 
-// Hide overlay once scene has content
-// For now, always show it since no scene is loaded
-void overlay;
+// Load scene from solver
+loadCity();
+
+async function loadCity(): Promise<void> {
+  try {
+    overlay.querySelector('p')!.textContent = 'Loading scene...';
+    const sceneGraph = await fetchScene();
+    const state = loadSceneGraph(sceneGraph, scene);
+
+    if (state.cityBounds) {
+      cameraManager.fitToBounds(state.cityBounds);
+    }
+
+    initControls(app, state, { ground });
+    new RouteTracer(camera, state, renderer.domElement);
+    overlay.style.display = 'none';
+  } catch (err) {
+    overlay.querySelector('p')!.textContent =
+      `Failed to load: ${err instanceof Error ? err.message : 'unknown error'}. Is the solver running on :3000?`;
+  }
+}

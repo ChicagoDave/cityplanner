@@ -9,6 +9,8 @@ const (
 	SystemElectrical SystemType = "electrical"
 	SystemTelecom    SystemType = "telecom"
 	SystemVehicle    SystemType = "vehicle"
+	SystemPedestrian SystemType = "pedestrian"
+	SystemBicycle    SystemType = "bicycle"
 )
 
 // LayerType identifies a vertical layer.
@@ -25,12 +27,15 @@ const (
 type EntityType string
 
 const (
-	EntityBuilding EntityType = "building"
-	EntityPipe     EntityType = "pipe"
-	EntityLane     EntityType = "lane"
-	EntityPath     EntityType = "path"
-	EntityPanel    EntityType = "panel"
-	EntityPark     EntityType = "park"
+	EntityBuilding   EntityType = "building"
+	EntityPipe       EntityType = "pipe"
+	EntityLane       EntityType = "lane"
+	EntityPath       EntityType = "path"
+	EntityPanel      EntityType = "panel"
+	EntityPark       EntityType = "park"
+	EntityPedway     EntityType = "pedway"
+	EntityBikeTunnel EntityType = "bike_tunnel"
+	EntityBattery    EntityType = "battery"
 )
 
 // Vec3 is a 3D vector.

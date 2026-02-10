@@ -137,9 +137,23 @@ func PlaceBuildings(s *spec.CitySpec, pods []Pod, adjacency map[string][]string,
 				}
 
 			case ZoneCommercial:
+				// Cap commercial: ~1 per 500 residents in the pod.
+				comTarget := pod.TargetPopulation / 500
+				if comTarget < 2 {
+					comTarget = 2
+				}
+				comPlaced := 0
 				for _, block := range blocks {
+					if comPlaced >= comTarget {
+						break
+					}
 					buildings := placeCommercialOnBlock(block, pod, maxCenter, maxMiddle, maxEdge, &buildingIdx)
+					remaining := comTarget - comPlaced
+					if len(buildings) > remaining {
+						buildings = buildings[:remaining]
+					}
 					allBuildings = append(allBuildings, buildings...)
+					comPlaced += len(buildings)
 				}
 
 			case ZoneCivic:

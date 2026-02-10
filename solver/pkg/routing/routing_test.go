@@ -92,7 +92,7 @@ func TestRouteInfrastructureAllNetworksPresent(t *testing.T) {
 	for _, seg := range segments {
 		netCounts[seg.Network]++
 	}
-	for _, net := range []NetworkType{NetworkSewage, NetworkWater, NetworkElectrical, NetworkTelecom, NetworkVehicle} {
+	for _, net := range []NetworkType{NetworkSewage, NetworkWater, NetworkElectrical, NetworkTelecom, NetworkVehicle, NetworkPedway, NetworkBikeTunnel} {
 		if netCounts[net] == 0 {
 			t.Errorf("no segments for network %s", net)
 		}
@@ -112,7 +112,7 @@ func TestRouteInfrastructureLayerAssignment(t *testing.T) {
 			if seg.Layer != 2 {
 				t.Errorf("%s segment %s: expected layer 2, got %d", seg.Network, seg.ID, seg.Layer)
 			}
-		case NetworkVehicle:
+		case NetworkVehicle, NetworkPedway, NetworkBikeTunnel:
 			if seg.Layer != 3 {
 				t.Errorf("%s segment %s: expected layer 3, got %d", seg.Network, seg.ID, seg.Layer)
 			}
@@ -180,6 +180,36 @@ func TestRouteInfrastructureTrunkAndBranch(t *testing.T) {
 		t.Error("no branch segments generated")
 	}
 	t.Logf("trunk: %d, branch: %d", trunkCount, branchCount)
+}
+
+func TestBuildConnectivity(t *testing.T) {
+	segments, _, _ := setupRouting(t)
+	conn := BuildConnectivity(segments)
+	if len(conn) == 0 {
+		t.Fatal("expected non-empty connectivity graph")
+	}
+
+	totalConns := 0
+	for _, ids := range conn {
+		totalConns += len(ids)
+	}
+	t.Logf("connectivity: %d segments have connections, %d total edges", len(conn), totalConns)
+
+	// Verify bidirectional: if A connects to B, B should connect to A.
+	for id, connected := range conn {
+		for _, cid := range connected {
+			found := false
+			for _, backID := range conn[cid] {
+				if backID == id {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("connectivity not bidirectional: %s -> %s but not reverse", id, cid)
+			}
+		}
+	}
 }
 
 func TestRouteInfrastructureEndpointsWithinBounds(t *testing.T) {

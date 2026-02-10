@@ -18,25 +18,28 @@ const (
 	NetworkElectrical NetworkType = "electrical"
 	NetworkTelecom    NetworkType = "telecom"
 	NetworkVehicle    NetworkType = "vehicle"
+	NetworkPedway     NetworkType = "pedway"
+	NetworkBikeTunnel NetworkType = "bike_tunnel"
 )
 
 // Segment represents a routed infrastructure segment.
 type Segment struct {
-	ID        string      `json:"id"`
-	Network   NetworkType `json:"network"`
-	Layer     int         `json:"layer"` // 1=bottom, 2=middle, 3=top
-	Start     [3]float64  `json:"start"`
-	End       [3]float64  `json:"end"`
-	WidthM    float64     `json:"width_m"`
-	Capacity  float64     `json:"capacity"` // network-specific units
-	IsTrunk   bool        `json:"is_trunk"`
+	ID          string      `json:"id"`
+	Network     NetworkType `json:"network"`
+	Layer       int         `json:"layer"` // 1=bottom, 2=middle, 3=top
+	Start       [3]float64  `json:"start"`
+	End         [3]float64  `json:"end"`
+	WidthM      float64     `json:"width_m"`
+	Capacity    float64     `json:"capacity"` // network-specific units
+	IsTrunk     bool        `json:"is_trunk"`
+	ConnectedTo []string    `json:"connected_to,omitempty"`
 }
 
 // Layer Y offsets (within 8m excavation depth).
 const (
 	yLayer1 = -7.0 // bottom: sewage + water
 	yLayer2 = -4.5 // middle: electrical + telecom
-	yLayer3 = -2.0 // top: vehicle lanes
+	yLayer3 = -2.0 // top underground: vehicle lanes (3m clearance)
 )
 
 // backbone holds precomputed trunk geometry shared by all networks.
@@ -103,7 +106,9 @@ func RouteInfrastructure(s *spec.CitySpec, pods []layout.Pod, _ []layout.Buildin
 		{NetworkWater, 1, yLayer1, 2.5, 1.5, 100},        // gpd per capita
 		{NetworkElectrical, 2, yLayer2, 2.0, 1.0, 2.5},   // kW per capita
 		{NetworkTelecom, 2, yLayer2, 1.5, 0.8, 0},         // special: node-based
-		{NetworkVehicle, 3, yLayer3, arterialW, branchW, 0}, // special: fleet-based
+		{NetworkVehicle, 3, yLayer3, arterialW, branchW, 0},    // special: fleet-based
+		{NetworkPedway, 3, yLayer3, 3.0, 2.0, 0},               // underground pedestrian tunnels
+		{NetworkBikeTunnel, 3, yLayer3, 2.5, 1.5, 0},           // underground bicycle tunnels
 	}
 
 	var allSegments []Segment
@@ -118,9 +123,23 @@ func RouteInfrastructure(s *spec.CitySpec, pods []layout.Pod, _ []layout.Buildin
 		if nd.net == NetworkTelecom {
 			lateralOffset = 2.5 // offset from electrical in layer 2
 		}
+		if nd.net == NetworkPedway {
+			lateralOffset = 5.0 // offset from vehicle centerline in layer 3
+		}
+		if nd.net == NetworkBikeTunnel {
+			lateralOffset = 8.0 // offset further from vehicle in layer 3
+		}
 
 		segs := routeNetwork(nd, bb, pods, totalPop, lateralOffset, &idx)
 		allSegments = append(allSegments, segs...)
+	}
+
+	// Build connectivity graph and populate each segment.
+	connMap := BuildConnectivity(allSegments)
+	for i := range allSegments {
+		if ids, ok := connMap[allSegments[i].ID]; ok {
+			allSegments[i].ConnectedTo = ids
+		}
 	}
 
 	// Validation summary.
@@ -139,9 +158,10 @@ func RouteInfrastructure(s *spec.CitySpec, pods []layout.Pod, _ []layout.Buildin
 
 	report.AddInfo(validation.Result{
 		Level: validation.LevelSpatial,
-		Message: fmt.Sprintf("routed %d infrastructure segments: sewage=%d water=%d electrical=%d telecom=%d vehicle=%d",
+		Message: fmt.Sprintf("routed %d infrastructure segments: sewage=%d water=%d electrical=%d telecom=%d vehicle=%d pedway=%d bike_tunnel=%d",
 			len(allSegments), netCounts[NetworkSewage], netCounts[NetworkWater],
-			netCounts[NetworkElectrical], netCounts[NetworkTelecom], netCounts[NetworkVehicle]),
+			netCounts[NetworkElectrical], netCounts[NetworkTelecom], netCounts[NetworkVehicle],
+			netCounts[NetworkPedway], netCounts[NetworkBikeTunnel]),
 	})
 
 	return allSegments, report
@@ -343,6 +363,10 @@ func capacityForNetwork(nd networkDef, pop int, segLength float64) float64 {
 		return math.Ceil(segLength / 75)
 	case NetworkVehicle:
 		return math.Max(1, float64(pop)/250) // ~1 vehicle per 250 people
+	case NetworkPedway:
+		return math.Max(1, float64(pop)/100) // ~1 pedestrian per 100 people peak
+	case NetworkBikeTunnel:
+		return math.Max(1, float64(pop)/200) // ~1 cyclist per 200 people peak
 	default:
 		return float64(pop)
 	}

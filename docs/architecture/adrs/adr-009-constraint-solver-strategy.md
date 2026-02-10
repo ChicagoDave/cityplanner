@@ -1,6 +1,6 @@
 # ADR-009: Constraint Solver Strategy
 
-**Status:** Proposed
+**Status:** Implemented
 **Date:** 2026-02-09
 **Deciders:** David Cornelson
 
@@ -147,3 +147,25 @@ Each stage validates its own output. Failures are reported with spatial context 
 - No automatic backtracking — the user adjusts the spec when constraints conflict
 - This is simpler than optimization-based approaches but requires the user to be the optimizer
 - A future "suggest fix" feature could use Phase 1's math to recommend parameter adjustments
+
+## Implementation Notes (2026-02-10)
+
+### Phase 1: Analytical Resolution
+- Implemented in `pkg/analytics` and `pkg/validation`
+- 33 tests covering demographics, geometry, services, energy, and validation
+- Completes in microseconds as designed
+- CLI commands: `validate` (schema only), `cost` (Phase 1 analytics + cost model)
+- Structured `validation.Report` with three levels: schema, analytical, spatial
+
+### Phase 2: Sequential Generation
+- Implemented in `pkg/layout`, `pkg/routing`, `pkg/scene`
+- 53 tests across all spatial packages
+- Pipeline order: `LayoutPods` → `PlaceBuildings` → `RouteInfrastructure` → `CollectGreenZones` → `Assemble`
+- Completes in ~150ms for 50K population on WSL2
+- Produces ~5,100 entities in a 3.2 MB JSON scene graph
+
+### Performance Characteristics
+- Total 86 tests, all passing
+- Phase 2 dominated by building placement (~70ms) and scene assembly (~40ms)
+- Memory peaks at ~120 MB during pod generation
+- Deterministic: same spec produces identical output
