@@ -12,6 +12,7 @@ import (
 	"github.com/ChicagoDave/cityplanner/pkg/layout"
 	"github.com/ChicagoDave/cityplanner/pkg/routing"
 	"github.com/ChicagoDave/cityplanner/pkg/scene"
+	"github.com/ChicagoDave/cityplanner/pkg/scene2d"
 	"github.com/ChicagoDave/cityplanner/pkg/spec"
 	"github.com/ChicagoDave/cityplanner/pkg/validation"
 )
@@ -27,6 +28,7 @@ type Server struct {
 	costReport *cost.Report
 	valReport  *validation.Report
 	sceneGraph *scene.Graph
+	scene2D    *scene2d.Scene2D
 }
 
 // New creates a server for the given project directory.
@@ -46,6 +48,7 @@ func (s *Server) Start() error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /api/scene", s.handleScene)
+	mux.HandleFunc("GET /api/scene2d", s.handleScene2D)
 	mux.HandleFunc("GET /api/cost", s.handleCost)
 	mux.HandleFunc("GET /api/validation", s.handleValidation)
 	mux.HandleFunc("POST /api/solve", s.handleSolve)
@@ -102,6 +105,7 @@ func (s *Server) loadAndSolve() error {
 	schemaReport.Merge(treeReport)
 
 	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields, plazas, trees)
+	sc2d := scene2d.Assemble2D(citySpec, params, pods, buildings, paths, greenZones, bikePaths, shuttleRoutes, stations, sportsFields, plazas, trees)
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -110,6 +114,7 @@ func (s *Server) loadAndSolve() error {
 	s.costReport = costReport
 	s.valReport = schemaReport
 	s.sceneGraph = graph
+	s.scene2D = sc2d
 	return nil
 }
 
@@ -121,7 +126,7 @@ func (s *Server) handleIndex(w http.ResponseWriter, _ *http.Request) {
 <div style="text-align:center">
 <h1>CityPlanner</h1>
 <p>Renderer not yet embedded. Run <code>npm run dev</code> in renderer/ for development.</p>
-<p>API endpoints: <a href="/api/spec">/api/spec</a> | <a href="/api/validation">/api/validation</a> | <a href="/api/cost">/api/cost</a> | <a href="/api/parameters">/api/parameters</a></p>
+<p>API endpoints: <a href="/api/spec">/api/spec</a> | <a href="/api/validation">/api/validation</a> | <a href="/api/cost">/api/cost</a> | <a href="/api/parameters">/api/parameters</a> | <a href="/api/scene2d">/api/scene2d</a></p>
 </div>
 </body></html>`)
 }
@@ -173,6 +178,7 @@ func (s *Server) handleSolve(w http.ResponseWriter, _ *http.Request) {
 		"cost":        s.costReport,
 		"validation":  s.valReport,
 		"scene_graph": s.sceneGraph,
+		"scene_2d":    s.scene2D,
 	})
 }
 
@@ -196,4 +202,15 @@ func (s *Server) handleParameters(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(s.params)
+}
+
+func (s *Server) handleScene2D(w http.ResponseWriter, _ *http.Request) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	w.Header().Set("Content-Type", "application/json")
+	if s.scene2D == nil {
+		http.Error(w, `{"error":"no 2D scene available"}`, http.StatusServiceUnavailable)
+		return
+	}
+	json.NewEncoder(w).Encode(s.scene2D)
 }

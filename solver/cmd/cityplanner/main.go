@@ -17,6 +17,7 @@ func main() {
 	rootCmd.AddCommand(validateCmd())
 	rootCmd.AddCommand(costCmd())
 	rootCmd.AddCommand(serveCmd())
+	rootCmd.AddCommand(layout2dCmd())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
@@ -71,4 +72,15 @@ func serveCmd() *cobra.Command {
 
 	cmd.Flags().IntVarP(&port, "port", "p", 3000, "HTTP server port")
 	return cmd
+}
+
+func layout2dCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "layout2d [project-path]",
+		Short: "Generate a 2D scene layout for SVG rendering",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(_ *cobra.Command, args []string) error {
+			return runLayout2D(args[0])
+		},
+	}
 }

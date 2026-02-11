@@ -10,6 +10,7 @@ import (
 	"github.com/ChicagoDave/cityplanner/pkg/layout"
 	"github.com/ChicagoDave/cityplanner/pkg/routing"
 	"github.com/ChicagoDave/cityplanner/pkg/scene"
+	"github.com/ChicagoDave/cityplanner/pkg/scene2d"
 	"github.com/ChicagoDave/cityplanner/pkg/spec"
 	"github.com/ChicagoDave/cityplanner/pkg/validation"
 )
@@ -126,4 +127,52 @@ func runSolve(projectPath string) error {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	return enc.Encode(output)
+}
+
+func runLayout2D(projectPath string) error {
+	citySpec, schemaReport, err := loadAndValidate(projectPath)
+	if err != nil {
+		return err
+	}
+	if !schemaReport.Valid {
+		printValidationReport(schemaReport)
+		return fmt.Errorf("spec has validation errors")
+	}
+
+	params, analyticsReport := analytics.Resolve(citySpec)
+	if !analyticsReport.Valid {
+		printValidationReport(analyticsReport)
+		return fmt.Errorf("analytical validation failed")
+	}
+
+	// Spatial generation.
+	pods, adjacency, podReport := layout.LayoutPods(citySpec, params)
+	analyticsReport.Merge(podReport)
+
+	buildings, paths, buildReport := layout.PlaceBuildings(citySpec, pods, adjacency, params)
+	analyticsReport.Merge(buildReport)
+
+	bikePaths, bikeReport := layout.GenerateBikePaths(pods, adjacency, citySpec.CityZones.Rings)
+	analyticsReport.Merge(bikeReport)
+
+	shuttleRoutes, stations, shuttleReport := layout.GenerateShuttleRoutes(bikePaths, pods)
+	analyticsReport.Merge(shuttleReport)
+
+	sportsFields, sportsReport := layout.PlaceSportsFields(pods, adjacency, citySpec.CityZones.Rings)
+	analyticsReport.Merge(sportsReport)
+
+	greenZones := layout.CollectGreenZones(citySpec, pods)
+
+	plazas, plazaReport := layout.GeneratePlazas(pods, citySpec)
+	analyticsReport.Merge(plazaReport)
+
+	trees, treeReport := layout.PlaceTrees(pods, greenZones, paths, bikePaths, plazas)
+	analyticsReport.Merge(treeReport)
+
+	sc := scene2d.Assemble2D(citySpec, params, pods, buildings, paths, greenZones,
+		bikePaths, shuttleRoutes, stations, sportsFields, plazas, trees)
+
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	return enc.Encode(sc)
 }
