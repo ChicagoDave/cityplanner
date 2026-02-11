@@ -84,8 +84,17 @@ func (s *Server) loadAndSolve() error {
 	segments, routeReport := routing.RouteInfrastructure(citySpec, pods, buildings)
 	schemaReport.Merge(routeReport)
 
+	bikePaths, bikeReport := layout.GenerateBikePaths(pods, adjacency, citySpec.CityZones.Rings)
+	schemaReport.Merge(bikeReport)
+
+	shuttleRoutes, stations, shuttleReport := layout.GenerateShuttleRoutes(bikePaths, pods)
+	schemaReport.Merge(shuttleReport)
+
+	sportsFields, sportsReport := layout.PlaceSportsFields(pods, adjacency, citySpec.CityZones.Rings)
+	schemaReport.Merge(sportsReport)
+
 	greenZones := layout.CollectGreenZones(citySpec, pods)
-	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones)
+	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
 
 	s.mu.Lock()
 	defer s.mu.Unlock()

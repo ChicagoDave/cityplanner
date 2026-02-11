@@ -21,6 +21,10 @@ func Assemble(
 	paths []layout.PathSegment,
 	segments []routing.Segment,
 	greenZones []layout.Zone,
+	bikePaths []layout.BikePath,
+	shuttleRoutes []layout.ShuttleRoute,
+	stations []layout.Station,
+	sportsFields []layout.SportsField,
 ) *Graph {
 	g := NewGraph()
 
@@ -29,6 +33,10 @@ func Assemble(
 	assembleRouting(segments, g)
 	assembleParks(greenZones, g)
 	assembleBatteries(s, pods, g)
+	assembleBikePaths(bikePaths, g)
+	assembleShuttleRoutes(shuttleRoutes, g)
+	assembleStations(stations, g)
+	assembleSportsFields(sportsFields, g)
 
 	g.Metadata = Metadata{
 		SpecVersion: s.SpecVersion,
@@ -326,6 +334,166 @@ func layerFromInt(l int) LayerType {
 		return LayerUnderground3
 	default:
 		return LayerSurface
+	}
+}
+
+func assembleBikePaths(bikePaths []layout.BikePath, g *Graph) {
+	segIdx := 0
+	for _, bp := range bikePaths {
+		// Segment each polyline into consecutive point pairs.
+		for i := 1; i < len(bp.Points); i++ {
+			p1 := bp.Points[i-1]
+			p2 := bp.Points[i]
+			dx := p2.X - p1.X
+			dz := p2.Z - p1.Z
+			length := math.Hypot(dx, dz)
+			if length < 0.1 {
+				continue
+			}
+			midX := (p1.X + p2.X) / 2
+			midZ := (p1.Z + p2.Z) / 2
+			angle := math.Atan2(dz, dx)
+
+			addEntity(g, Entity{
+				ID:   fmt.Sprintf("%s_seg_%d", bp.ID, segIdx),
+				Type: EntityBikePath,
+				Position: Vec3{
+					X: midX,
+					Y: bp.ElevatedM,
+					Z: midZ,
+				},
+				Dimensions: Vec3{
+					X: bp.WidthM,
+					Y: 0.3,
+					Z: length,
+				},
+				Rotation: yawQuat(angle),
+				Material: "asphalt",
+				System:   SystemBicycle,
+				Layer:    LayerSurface,
+				Metadata: map[string]any{
+					"bike_path_id": bp.ID,
+					"path_type":    bp.Type,
+					"elevated_m":   bp.ElevatedM,
+				},
+			})
+			segIdx++
+		}
+	}
+}
+
+func assembleShuttleRoutes(routes []layout.ShuttleRoute, g *Graph) {
+	segIdx := 0
+	for _, sr := range routes {
+		for i := 1; i < len(sr.Points); i++ {
+			p1 := sr.Points[i-1]
+			p2 := sr.Points[i]
+			dx := p2.X - p1.X
+			dz := p2.Z - p1.Z
+			length := math.Hypot(dx, dz)
+			if length < 0.1 {
+				continue
+			}
+			midX := (p1.X + p2.X) / 2
+			midZ := (p1.Z + p2.Z) / 2
+			angle := math.Atan2(dz, dx)
+
+			addEntity(g, Entity{
+				ID:   fmt.Sprintf("%s_seg_%d", sr.ID, segIdx),
+				Type: EntityShuttleRoute,
+				Position: Vec3{
+					X: midX,
+					Y: 0,
+					Z: midZ,
+				},
+				Dimensions: Vec3{
+					X: sr.WidthM,
+					Y: 0.3,
+					Z: length,
+				},
+				Rotation: yawQuat(angle),
+				Material: "asphalt",
+				System:   SystemShuttle,
+				Layer:    LayerSurface,
+				Metadata: map[string]any{
+					"shuttle_route_id": sr.ID,
+					"route_type":       sr.Type,
+				},
+			})
+			segIdx++
+		}
+	}
+}
+
+func assembleStations(stations []layout.Station, g *Graph) {
+	for _, st := range stations {
+		// Station platform: 20m x 5m x 10m concrete platform.
+		dist := math.Hypot(st.Position.X, st.Position.Z)
+		angle := 0.0
+		if dist > 1 {
+			angle = math.Atan2(st.Position.Z, st.Position.X) + math.Pi/2
+		}
+
+		addEntity(g, Entity{
+			ID:   st.ID,
+			Type: EntityStation,
+			Position: Vec3{
+				X: st.Position.X,
+				Y: 0,
+				Z: st.Position.Z,
+			},
+			Dimensions: Vec3{
+				X: 20.0,
+				Y: 5.0,
+				Z: 10.0,
+			},
+			Rotation: yawQuat(angle),
+			Material: "concrete",
+			System:   SystemShuttle,
+			Pod:      st.PodID,
+			Layer:    LayerSurface,
+			Metadata: map[string]any{
+				"route_id": st.RouteID,
+				"type":     "mobility_hub",
+			},
+		})
+	}
+}
+
+func assembleSportsFields(fields []layout.SportsField, g *Graph) {
+	for _, sf := range fields {
+		mat := "grass"
+		height := 0.3
+		switch sf.Type {
+		case "stadium":
+			mat = "grass"
+			height = 15.0 // stadium walls
+		case "basketball", "tennis", "pickleball":
+			mat = "court"
+			height = 0.2
+		}
+
+		addEntity(g, Entity{
+			ID:   sf.ID,
+			Type: EntitySportsField,
+			Position: Vec3{
+				X: sf.Position.X,
+				Y: 0,
+				Z: sf.Position.Z,
+			},
+			Dimensions: Vec3{
+				X: sf.Dimensions[0],
+				Y: height,
+				Z: sf.Dimensions[1],
+			},
+			Rotation: yawQuat(sf.Rotation),
+			Material: mat,
+			Layer:    LayerSurface,
+			Metadata: map[string]any{
+				"field_type": sf.Type,
+				"buffer_id":  sf.BufferID,
+			},
+		})
 	}
 }
 

@@ -11,6 +11,7 @@ const (
 	SystemVehicle    SystemType = "vehicle"
 	SystemPedestrian SystemType = "pedestrian"
 	SystemBicycle    SystemType = "bicycle"
+	SystemShuttle    SystemType = "shuttle"
 )
 
 // LayerType identifies a vertical layer.
@@ -33,9 +34,13 @@ const (
 	EntityPath       EntityType = "path"
 	EntityPanel      EntityType = "panel"
 	EntityPark       EntityType = "park"
-	EntityPedway     EntityType = "pedway"
-	EntityBikeTunnel EntityType = "bike_tunnel"
-	EntityBattery    EntityType = "battery"
+	EntityPedway        EntityType = "pedway"
+	EntityBikeTunnel    EntityType = "bike_tunnel"
+	EntityBattery       EntityType = "battery"
+	EntityBikePath      EntityType = "bike_path"
+	EntityShuttleRoute  EntityType = "shuttle_route"
+	EntityStation       EntityType = "station"
+	EntitySportsField   EntityType = "sports_field"
 )
 
 // Vec3 is a 3D vector.

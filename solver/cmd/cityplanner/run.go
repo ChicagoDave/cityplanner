@@ -97,8 +97,17 @@ func runSolve(projectPath string) error {
 	segments, routeReport := routing.RouteInfrastructure(citySpec, pods, buildings)
 	analyticsReport.Merge(routeReport)
 
+	bikePaths, bikeReport := layout.GenerateBikePaths(pods, adjacency, citySpec.CityZones.Rings)
+	analyticsReport.Merge(bikeReport)
+
+	shuttleRoutes, stations, shuttleReport := layout.GenerateShuttleRoutes(bikePaths, pods)
+	analyticsReport.Merge(shuttleReport)
+
+	sportsFields, sportsReport := layout.PlaceSportsFields(pods, adjacency, citySpec.CityZones.Rings)
+	analyticsReport.Merge(sportsReport)
+
 	greenZones := layout.CollectGreenZones(citySpec, pods)
-	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones)
+	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
 
 	output := map[string]any{
 		"phase":       2,

@@ -71,8 +71,11 @@ func assembleTestGraph(t *testing.T) *Graph {
 	buildings, paths, _ := layout.PlaceBuildings(s, pods, adjacency, params)
 	segments, _ := routing.RouteInfrastructure(s, pods, buildings)
 	greenZones := layout.CollectGreenZones(s, pods)
+	bikePaths, _ := layout.GenerateBikePaths(pods, adjacency, s.CityZones.Rings)
+	shuttleRoutes, stations, _ := layout.GenerateShuttleRoutes(bikePaths, pods)
+	sportsFields, _ := layout.PlaceSportsFields(pods, adjacency, s.CityZones.Rings)
 
-	return Assemble(s, pods, buildings, paths, segments, greenZones)
+	return Assemble(s, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
 }
 
 func TestAssembleProducesGraph(t *testing.T) {
@@ -88,7 +91,7 @@ func TestAssembleProducesGraph(t *testing.T) {
 
 func TestAssembleHasAllEntityTypes(t *testing.T) {
 	g := assembleTestGraph(t)
-	for _, et := range []EntityType{EntityBuilding, EntityPath, EntityPipe, EntityLane, EntityPark, EntityPedway, EntityBikeTunnel, EntityBattery} {
+	for _, et := range []EntityType{EntityBuilding, EntityPath, EntityPipe, EntityLane, EntityPark, EntityPedway, EntityBikeTunnel, EntityBattery, EntityBikePath, EntityShuttleRoute, EntityStation, EntitySportsField} {
 		if len(g.Groups.EntityTypes[et]) == 0 {
 			t.Errorf("no entities of type %s", et)
 		} else {
@@ -184,7 +187,7 @@ func TestAssembleUniqueEntityIDs(t *testing.T) {
 
 func TestAssembleSystemsCoverAllNetworks(t *testing.T) {
 	g := assembleTestGraph(t)
-	for _, sys := range []SystemType{SystemSewage, SystemWater, SystemElectrical, SystemTelecom, SystemVehicle, SystemPedestrian, SystemBicycle} {
+	for _, sys := range []SystemType{SystemSewage, SystemWater, SystemElectrical, SystemTelecom, SystemVehicle, SystemPedestrian, SystemBicycle, SystemShuttle} {
 		if len(g.Groups.Systems[sys]) == 0 {
 			t.Errorf("no entities for system %s", sys)
 		}

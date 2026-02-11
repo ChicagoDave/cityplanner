@@ -92,8 +92,12 @@ func runFullPipeline(t testing.TB, pop int) *Graph {
 		t.Fatalf("routing failed for %d pop: %s", pop, routeReport.Summary)
 	}
 
+	bikePaths, _ := layout.GenerateBikePaths(pods, adjacency, s.CityZones.Rings)
+	shuttleRoutes, stations, _ := layout.GenerateShuttleRoutes(bikePaths, pods)
+	sportsFields, _ := layout.PlaceSportsFields(pods, adjacency, s.CityZones.Rings)
+
 	greenZones := layout.CollectGreenZones(s, pods)
-	return Assemble(s, pods, buildings, paths, segments, greenZones)
+	return Assemble(s, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
 }
 
 func TestLargeCity100K(t *testing.T) {
