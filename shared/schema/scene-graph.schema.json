@@ -66,7 +66,7 @@
         "id": { "type": "string" },
         "type": {
           "type": "string",
-          "enum": ["building", "pipe", "lane", "path", "panel", "park"]
+          "enum": ["building", "pipe", "lane", "path", "panel", "park", "pedway", "bike_tunnel", "battery", "bike_path", "shuttle_route", "station", "sports_field", "plaza", "tree"]
         },
         "position": { "$ref": "#/$defs/vec3" },
         "dimensions": { "$ref": "#/$defs/vec3" },
@@ -80,7 +80,7 @@
         "material": { "type": "string" },
         "system": {
           "type": "string",
-          "enum": ["water", "sewage", "electrical", "telecom", "vehicle"]
+          "enum": ["water", "sewage", "electrical", "telecom", "vehicle", "pedestrian", "bicycle", "shuttle"]
         },
         "pod": { "type": "string" },
         "layer": {

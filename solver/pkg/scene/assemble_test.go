@@ -74,8 +74,10 @@ func assembleTestGraph(t *testing.T) *Graph {
 	bikePaths, _ := layout.GenerateBikePaths(pods, adjacency, s.CityZones.Rings)
 	shuttleRoutes, stations, _ := layout.GenerateShuttleRoutes(bikePaths, pods)
 	sportsFields, _ := layout.PlaceSportsFields(pods, adjacency, s.CityZones.Rings)
+	plazas, _ := layout.GeneratePlazas(pods, s)
+	trees, _ := layout.PlaceTrees(pods, greenZones, paths, bikePaths, plazas)
 
-	return Assemble(s, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
+	return Assemble(s, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields, plazas, trees)
 }
 
 func TestAssembleProducesGraph(t *testing.T) {
@@ -91,7 +93,7 @@ func TestAssembleProducesGraph(t *testing.T) {
 
 func TestAssembleHasAllEntityTypes(t *testing.T) {
 	g := assembleTestGraph(t)
-	for _, et := range []EntityType{EntityBuilding, EntityPath, EntityPipe, EntityLane, EntityPark, EntityPedway, EntityBikeTunnel, EntityBattery, EntityBikePath, EntityShuttleRoute, EntityStation, EntitySportsField} {
+	for _, et := range []EntityType{EntityBuilding, EntityPath, EntityPipe, EntityLane, EntityPark, EntityPedway, EntityBikeTunnel, EntityBattery, EntityBikePath, EntityShuttleRoute, EntityStation, EntitySportsField, EntityPlaza, EntityTree} {
 		if len(g.Groups.EntityTypes[et]) == 0 {
 			t.Errorf("no entities of type %s", et)
 		} else {

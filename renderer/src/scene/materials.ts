@@ -10,6 +10,9 @@ const MATERIAL_DEFS: Record<string, { color: number; metalness?: number; roughne
   asphalt:   { color: 0x444444, roughness: 0.95 },
   paver:     { color: 0x999988, roughness: 0.8 },
   grass:     { color: 0x3a7a3a, roughness: 0.95 },
+  court:     { color: 0xcc8844, roughness: 0.7 },
+  stone:     { color: 0xa0a0a0, roughness: 0.75 },
+  foliage:   { color: 0x2d6b2d, roughness: 0.9 },
 };
 
 const cache = new Map<string, THREE.MeshStandardMaterial>();

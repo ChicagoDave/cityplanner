@@ -25,6 +25,8 @@ func Assemble(
 	shuttleRoutes []layout.ShuttleRoute,
 	stations []layout.Station,
 	sportsFields []layout.SportsField,
+	plazas []layout.Plaza,
+	trees []layout.Tree,
 ) *Graph {
 	g := NewGraph()
 
@@ -37,6 +39,8 @@ func Assemble(
 	assembleShuttleRoutes(shuttleRoutes, g)
 	assembleStations(stations, g)
 	assembleSportsFields(sportsFields, g)
+	assemblePlazas(plazas, g)
+	assembleTrees(trees, g)
 
 	g.Metadata = Metadata{
 		SpecVersion: s.SpecVersion,
@@ -492,6 +496,58 @@ func assembleSportsFields(fields []layout.SportsField, g *Graph) {
 			Metadata: map[string]any{
 				"field_type": sf.Type,
 				"buffer_id":  sf.BufferID,
+			},
+		})
+	}
+}
+
+func assemblePlazas(plazas []layout.Plaza, g *Graph) {
+	for _, p := range plazas {
+		addEntity(g, Entity{
+			ID:   p.ID,
+			Type: EntityPlaza,
+			Position: Vec3{
+				X: p.Position.X,
+				Y: 0,
+				Z: p.Position.Z,
+			},
+			Dimensions: Vec3{
+				X: p.Width,
+				Y: 0.4,
+				Z: p.Depth,
+			},
+			Rotation: yawQuat(p.Rotation),
+			Material: "stone",
+			Pod:      p.PodID,
+			Layer:    LayerSurface,
+			Metadata: map[string]any{
+				"ring_character": p.RingChar,
+			},
+		})
+	}
+}
+
+func assembleTrees(trees []layout.Tree, g *Graph) {
+	for _, t := range trees {
+		addEntity(g, Entity{
+			ID:   t.ID,
+			Type: EntityTree,
+			Position: Vec3{
+				X: t.Position.X,
+				Y: 0,
+				Z: t.Position.Z,
+			},
+			Dimensions: Vec3{
+				X: t.CanopyD,
+				Y: t.Height,
+				Z: t.CanopyD,
+			},
+			Rotation: identityQuat(),
+			Material: "foliage",
+			Pod:      t.PodID,
+			Layer:    LayerSurface,
+			Metadata: map[string]any{
+				"context": t.Context,
 			},
 		})
 	}

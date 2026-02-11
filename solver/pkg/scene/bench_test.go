@@ -97,7 +97,9 @@ func runFullPipeline(t testing.TB, pop int) *Graph {
 	sportsFields, _ := layout.PlaceSportsFields(pods, adjacency, s.CityZones.Rings)
 
 	greenZones := layout.CollectGreenZones(s, pods)
-	return Assemble(s, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
+	plazas, _ := layout.GeneratePlazas(pods, s)
+	trees, _ := layout.PlaceTrees(pods, greenZones, paths, bikePaths, plazas)
+	return Assemble(s, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields, plazas, trees)
 }
 
 func TestLargeCity100K(t *testing.T) {

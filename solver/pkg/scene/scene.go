@@ -41,6 +41,8 @@ const (
 	EntityShuttleRoute  EntityType = "shuttle_route"
 	EntityStation       EntityType = "station"
 	EntitySportsField   EntityType = "sports_field"
+	EntityPlaza         EntityType = "plaza"
+	EntityTree          EntityType = "tree"
 )
 
 // Vec3 is a 3D vector.

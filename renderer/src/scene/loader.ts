@@ -60,6 +60,12 @@ function createMesh(entity: Entity, maxHeight: number): THREE.Mesh | null {
     case 'pedway':
     case 'bike_tunnel':
     case 'battery':
+    case 'bike_path':
+    case 'shuttle_route':
+    case 'station':
+    case 'sports_field':
+    case 'plaza':
+    case 'tree':
       geometry = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
       break;
     default:

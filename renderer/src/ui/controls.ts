@@ -23,7 +23,7 @@ export function initControls(container: HTMLElement, state: SceneState, options?
   // Visibility state: entity is visible only if layer ON and (no system or system ON).
   const enabledLayers = new Set<string>(['surface']);
   const enabledSystems = new Set<string>([
-    'water', 'sewage', 'electrical', 'telecom', 'vehicle', 'pedestrian', 'bicycle',
+    'water', 'sewage', 'electrical', 'telecom', 'vehicle', 'pedestrian', 'bicycle', 'shuttle',
   ]);
 
   function updateVisibility(): void {
@@ -59,7 +59,7 @@ export function initControls(container: HTMLElement, state: SceneState, options?
 
   // System toggles
   panel.appendChild(createSection('Systems'));
-  const systems = ['water', 'sewage', 'electrical', 'telecom', 'vehicle', 'pedestrian', 'bicycle'];
+  const systems = ['water', 'sewage', 'electrical', 'telecom', 'vehicle', 'pedestrian', 'bicycle', 'shuttle'];
   for (const system of systems) {
     const ids = state.groups.systems[system];
     const count = ids?.length ?? 0;

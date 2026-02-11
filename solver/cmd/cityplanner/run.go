@@ -107,7 +107,14 @@ func runSolve(projectPath string) error {
 	analyticsReport.Merge(sportsReport)
 
 	greenZones := layout.CollectGreenZones(citySpec, pods)
-	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
+
+	plazas, plazaReport := layout.GeneratePlazas(pods, citySpec)
+	analyticsReport.Merge(plazaReport)
+
+	trees, treeReport := layout.PlaceTrees(pods, greenZones, paths, bikePaths, plazas)
+	analyticsReport.Merge(treeReport)
+
+	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields, plazas, trees)
 
 	output := map[string]any{
 		"phase":       2,

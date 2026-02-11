@@ -94,7 +94,14 @@ func (s *Server) loadAndSolve() error {
 	schemaReport.Merge(sportsReport)
 
 	greenZones := layout.CollectGreenZones(citySpec, pods)
-	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields)
+
+	plazas, plazaReport := layout.GeneratePlazas(pods, citySpec)
+	schemaReport.Merge(plazaReport)
+
+	trees, treeReport := layout.PlaceTrees(pods, greenZones, paths, bikePaths, plazas)
+	schemaReport.Merge(treeReport)
+
+	graph := scene.Assemble(citySpec, pods, buildings, paths, segments, greenZones, bikePaths, shuttleRoutes, stations, sportsFields, plazas, trees)
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
